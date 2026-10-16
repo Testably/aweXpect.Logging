@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>aweXpect.Logging.Aot</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="aweXpect"/>
+		<ProjectReference Include="..\..\..\Source\aweXpect.Logging\aweXpect.Logging.csproj"/>
+	</ItemGroup>
+
+</Project>

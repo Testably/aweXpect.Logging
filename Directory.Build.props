@@ -1,0 +1,9 @@
+<Project>
+
+	<PropertyGroup>
+		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)/strongname.snk</AssemblyOriginatorKeyFile>
+		<SignAssembly>True</SignAssembly>
+		<PublicKey>0024000004800000940000000602000000240000525341310004000001000100ad24e2d00eecb3ebd126768ee16fc655098c94c4b9d76e59c1bee110af810d394c88a4ae668e334b0d365e0fe2c927175fb08327b5a33360f5e4fe6848cbeae679a1d623b391d030ebcebf2593d2aa5d1f06d61107ecebd83f925551780299f45e04e07e10c5a4e6c784a177e829c880ae833d4c2bafeae4f14433846deea1c2</PublicKey>
+	</PropertyGroup>
+
+</Project>
