@@ -1,4 +1,6 @@
+using System;
 using aweXpect.Core;
+using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
 
 namespace aweXpect.Results;
@@ -13,11 +15,22 @@ namespace aweXpect.Results;
 public sealed class HasLoggedCountResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasLoggedCountResult>
 {
+	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
-	internal HasLoggedCountResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue)
+	internal HasLoggedCountResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
+		RepeatedCheckOptions repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
+		_repeatedCheckOptions = repeatedCheckOptions;
+	}
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.Within(TimeSpan)" />
+	public HasLoggedCountResult Within(TimeSpan timeout)
+	{
+		_repeatedCheckOptions.Within(timeout);
+		return this;
 	}
 }

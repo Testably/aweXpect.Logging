@@ -23,8 +23,8 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier)
-		: base(expectationBuilder, returnValue, filter)
+		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions)
+		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 		_quantifier = quantifier;
 	}
@@ -134,8 +134,8 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	///     <c>IgnoringCase()</c>.
 	/// </remarks>
 	public HasLoggedMessageResult WithMessage(string expected)
-		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, Filter.AddMessage(expected));
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, Filter.AddMessage(expected));
 
 	private HasLoggedCountResult Quantified()
-		=> new(ExpectationBuilder, ReturnValue);
+		=> new(ExpectationBuilder, ReturnValue, RepeatedCheckOptions);
 }

@@ -17,8 +17,8 @@ public sealed class HasNotLoggedMessageResult
 	private readonly StringEqualityOptions _options;
 
 	internal HasNotLoggedMessageResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, StringEqualityOptions options)
-		: base(expectationBuilder, returnValue, filter)
+		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions, StringEqualityOptions options)
+		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 		_options = options;
 	}

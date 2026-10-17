@@ -44,7 +44,7 @@ but it did not log any record
 ```
 
 The records are read once, when the expectation is evaluated, so a record that is logged afterwards is neither
-considered nor listed.
+considered nor listed, unless you specify a [timeout](#timeout).
 
 With `OrHigher()`, a record with a more severe level also counts, e.g. to verify that no warning or error was logged:
 
@@ -200,3 +200,42 @@ Records:
   [Error] "Retry limit reached"
 ]
 ```
+
+## Timeout
+
+Records of a background service, e.g. a hosted service or a timer, can be logged after the expectation is evaluated.
+With `Within`, the records are read repeatedly until the timeout:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Information).WithMessage("Started").Within(TimeSpan.FromSeconds(5));
+await Expect.That(collector).HasLogged(LogLevel.Warning).Once().Within(TimeSpan.FromSeconds(5));
+await Expect.That(collector).HasNotLogged(LogLevel.Error).OrHigher().Within(TimeSpan.FromSeconds(5));
+```
+
+The records are read until their amount decides the outcome, so the expectation only waits as long as necessary:
+
+- An expectation that further records can meet, e.g. `HasLogged` or `AtLeast(…)`, succeeds as soon as it is met.
+- An expectation that further records can violate, e.g. `HasNotLogged`, `Never()`, `AtMost(…)` or `Once()`, waits for
+  the full timeout and fails as soon as it is violated.
+
+The failure message then lists the records that were logged until the expectation failed:
+
+```text title="Failure message"
+Expected that collector
+has not logged a record with level Error or higher within 0:05,
+but it logged 1 such record
+
+Matching records:
+[
+  [Error] "Retry limit reached"
+]
+
+Records:
+[
+  [Information] "Started",
+  [Error] "Retry limit reached"
+]
+```
+
+When the evaluation is canceled before the outcome is decided, e.g. via `WithCancellation`, the expectation is
+inconclusive.

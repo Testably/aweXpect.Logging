@@ -61,6 +61,33 @@ internal static partial class Checks
 					.HasLogged(LogLevel.Error).WithException<TimeoutException>(),
 				"has logged a record with level Error and exception of type TimeoutException",
 				"  [Error] \"Retry limit reached\"")),
+		new("a collector that logs the record during the timeout passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger logger = new(collector);
+				Task logging = Task.Run(async () =>
+				{
+					await Task.Delay(50);
+					logger.LogWarning("Retry limit reached");
+				});
+				await That(collector).HasLogged(LogLevel.Warning).Within(TimeSpan.FromSeconds(30));
+				await logging;
+			})),
+		new("a collector that logs an unexpected record during the timeout fails",
+			() => ShouldFail(async () =>
+				{
+					FakeLogCollector collector = new();
+					FakeLogger logger = new(collector);
+					Task logging = Task.Run(async () =>
+					{
+						await Task.Delay(50);
+						logger.LogError("Retry limit reached");
+					});
+					await That(collector).HasNotLogged(LogLevel.Error).Within(TimeSpan.FromSeconds(30));
+					await logging;
+				},
+				"has not logged a record with level Error within 0:30", "but it logged 1 such record")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
