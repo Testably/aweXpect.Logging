@@ -241,7 +241,8 @@ public sealed partial class ThatFakeLogCollector
 			private static FakeLogCollector WithRecord(LogLevel level, string message)
 			{
 				FakeLogCollector collector = new();
-				LogMessage(new FakeLogger(collector), level, message);
+				FakeLogger logger = new(collector);
+				LogMessage(logger, level, message);
 				return collector;
 			}
 

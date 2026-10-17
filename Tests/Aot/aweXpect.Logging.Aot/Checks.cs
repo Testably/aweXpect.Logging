@@ -37,7 +37,8 @@ internal static partial class Checks
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
 	{
 		FakeLogCollector collector = new();
-		LogMessage(new FakeLogger(collector), level, message);
+		FakeLogger logger = new(collector);
+		LogMessage(logger, level, message);
 		return collector;
 	}
 
