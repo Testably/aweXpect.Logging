@@ -89,11 +89,13 @@ public static partial class ThatFakeLogCollector
 				await Read(actual.GetSnapshot());
 				return quantifier.Check(_matchingRecords.Count, false) is not null;
 			}, context);
-			Outcome = repeatedOutcome == Outcome.Undecided
-				? Outcome.Undecided
-				: quantifier.Check(_matchingRecords.Count, true) == true
-					? Outcome.Success
-					: Outcome.Failure;
+			if (repeatedOutcome == Outcome.Undecided)
+			{
+				Outcome = Outcome.Undecided;
+				return this;
+			}
+
+			Outcome = quantifier.Check(_matchingRecords.Count, true) == true ? Outcome.Success : Outcome.Failure;
 			return this;
 		}
 
