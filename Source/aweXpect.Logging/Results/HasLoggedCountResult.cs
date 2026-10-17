@@ -27,6 +27,13 @@ public sealed class HasLoggedCountResult
 		_repeatedCheckOptions = repeatedCheckOptions;
 	}
 
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.CheckEvery(TimeSpan)" />
+	public HasLoggedCountResult CheckEvery(TimeSpan interval)
+	{
+		_repeatedCheckOptions.CheckEveryAfterWithin(interval);
+		return this;
+	}
+
 	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.Within(TimeSpan)" />
 	public HasLoggedCountResult Within(TimeSpan timeout)
 	{

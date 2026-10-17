@@ -71,7 +71,8 @@ internal static partial class Checks
 					await Task.Delay(50);
 					logger.LogWarning("Retry limit reached");
 				});
-				await That(collector).HasLogged(LogLevel.Warning).Within(TimeSpan.FromSeconds(30));
+				await That(collector).HasLogged(LogLevel.Warning)
+					.Within(TimeSpan.FromSeconds(30)).CheckEvery(TimeSpan.FromMilliseconds(10));
 				await logging;
 			})),
 		new("a collector that logs an unexpected record during the timeout fails",

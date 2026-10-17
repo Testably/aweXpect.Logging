@@ -36,6 +36,24 @@ public abstract class LogRecordFilterResult<TSelf>
 	private protected IThat<FakeLogCollector?> ReturnValue { get; }
 
 	/// <summary>
+	///     Sets the <paramref name="interval" /> in which the records are read until the timeout of
+	///     <see cref="Within(TimeSpan)" />, which must be specified before.
+	/// </summary>
+	/// <remarks>
+	///     Defaults to <c>Customize.aweXpect.Settings().DefaultCheckInterval</c>, i.e. 100 milliseconds, if not
+	///     specified.
+	/// </remarks>
+	/// <exception cref="ArgumentOutOfRangeException">The <paramref name="interval" /> is not positive.</exception>
+	/// <exception cref="InvalidOperationException">
+	///     No timeout is specified with <see cref="Within(TimeSpan)" /> yet, or an interval is already specified.
+	/// </exception>
+	public TSelf CheckEvery(TimeSpan interval)
+	{
+		RepeatedCheckOptions.CheckEveryAfterWithin(interval);
+		return (TSelf)this;
+	}
+
+	/// <summary>
 	///     Allows a <paramref name="timeout" /> until the expectation must be met, e.g. for the records of a background
 	///     service.
 	/// </summary>
