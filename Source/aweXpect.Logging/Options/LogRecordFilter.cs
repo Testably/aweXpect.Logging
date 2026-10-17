@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Formatting;
@@ -52,12 +53,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
-		foreach (Type exceptionType in _exceptionTypes)
+		if (_exceptionTypes.Any(exceptionType => !exceptionType.IsInstanceOfType(record.Exception)))
 		{
-			if (!exceptionType.IsInstanceOfType(record.Exception))
-			{
-				return false;
-			}
+			return false;
 		}
 
 		foreach ((string expected, StringEqualityOptions options) in _messages)
