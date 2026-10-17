@@ -36,10 +36,10 @@ Records:
 
 ## Overview
 
-| Expectation                                               | Subject            | Summary                                        |
-|-----------------------------------------------------------|--------------------|------------------------------------------------|
-| [`HasLogged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector` | logged at least one record with the log level  |
-| [`HasNotLogged`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector` | logged no record with the log level            |
+| Expectation                                               | Subject                          | Summary                                        |
+|-----------------------------------------------------------|----------------------------------|------------------------------------------------|
+| [`HasLogged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level  |
+| [`HasNotLogged`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level            |
 
 ## Documentation
 

@@ -107,4 +107,15 @@ namespace aweXpect
         [aweXpect.Core.GuaranteesNotNull]
         public static aweXpect.Results.HasNotLoggedLevelResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
     }
+    public static class ThatFakeLogger
+    {
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasLoggedLevelResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasNotLoggedResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasNotLoggedLevelResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+    }
 }
