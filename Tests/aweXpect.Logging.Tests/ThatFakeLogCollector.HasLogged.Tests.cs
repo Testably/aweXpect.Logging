@@ -73,7 +73,7 @@ public sealed partial class ThatFakeLogCollector
 				FakeLogger logger = new(subject);
 				for (int i = 1; i <= 12; i++)
 				{
-					logger.LogInformation("Message {Number}", i);
+					LogNumberedMessage(logger, i, null);
 				}
 
 				async Task Act()
@@ -106,7 +106,7 @@ public sealed partial class ThatFakeLogCollector
 			public async Task WhenMessageIsLong_ShouldShortenIt()
 			{
 				FakeLogCollector subject = new();
-				new FakeLogger(subject).LogError(new string('a', 120));
+				LogErrorMessage(new FakeLogger(subject), new string('a', 120), null);
 
 				async Task Act()
 					=> await That(subject).HasLogged(LogLevel.Warning);
@@ -185,6 +185,12 @@ public sealed partial class ThatFakeLogCollector
 
 				await That(Act).DoesNotThrow();
 			}
+
+			private static readonly Action<ILogger, string, Exception?> LogErrorMessage =
+				LoggerMessage.Define<string>(LogLevel.Error, new EventId(2), "{Message}");
+
+			private static readonly Action<ILogger, int, Exception?> LogNumberedMessage =
+				LoggerMessage.Define<int>(LogLevel.Information, new EventId(1), "Message {Number}");
 		}
 
 		public sealed class NegatedTests
