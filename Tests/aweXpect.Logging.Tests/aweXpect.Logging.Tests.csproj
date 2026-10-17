@@ -1,5 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+	<!--
+	    Microsoft.Extensions.Diagnostics.Testing ships assets for .NET Framework but warns that it is not tested there.
+	    The package targets netstandard2.0, so the tests on net48 verify that it works for those consumers anyway.
+	-->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Source\aweXpect.Logging\aweXpect.Logging.csproj"/>
 	</ItemGroup>

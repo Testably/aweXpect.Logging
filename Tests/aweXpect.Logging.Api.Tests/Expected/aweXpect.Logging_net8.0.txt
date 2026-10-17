@@ -1,3 +1,15 @@
 [assembly: System.Reflection.AssemblyMetadata("IsTrimmable", "True")]
 [assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/Testably/aweXpect.Logging.git")]
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
+namespace aweXpect.Results
+{
+    public sealed class HasLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedResult> { }
+}
+namespace aweXpect
+{
+    public static class ThatFakeLogCollector
+    {
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+    }
+}

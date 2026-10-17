@@ -11,21 +11,38 @@ Expectations for logging with `Microsoft.Extensions.Logging` for [aweXpect](http
 ## At a glance
 
 ```csharp
-// verify the log records of a FakeLogCollector
-await Expect.That(collector).HasLogged(LogLevel.Warning)
-    .WithMessage("Retry limit * reached").AsWildcard()
-    .Once();
-await Expect.That(collector).HasNotLogged(LogLevel.Error);
+// collect the log records with a FakeLogger from Microsoft.Extensions.Diagnostics.Testing
+FakeLogCollector collector = new();
+ILogger logger = new FakeLogger(collector);
+logger.LogWarning("Retry limit reached");
+
+// verify that a record with the log level was logged
+await Expect.That(collector).HasLogged(LogLevel.Warning);
+```
+
+A failing expectation lists the collected records. If only an error was logged, `HasLogged(LogLevel.Warning)` would
+fail with:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Warning,
+but it only logged records with other levels
+
+Records:
+[
+  [Error] "Retry limit reached"
+]
 ```
 
 ## Overview
 
-| Expectation    | Subject            | Summary                                         |
-|----------------|--------------------|-------------------------------------------------|
-| `HasLogged`    | `FakeLogCollector` | logged a record that matches the expectation    |
-| `HasNotLogged` | `FakeLogCollector` | logged no record that matches the expectation   |
+| Expectation                                       | Subject            | Summary                                        |
+|---------------------------------------------------|--------------------|------------------------------------------------|
+| [`HasLogged`](Docs/pages/01-log-records.md#level) | `FakeLogCollector` | logged at least one record with the log level  |
 
 ## Documentation
 
 The full documentation is available at
-[docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/).
+[docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/):
+
+- [Log records](Docs/pages/01-log-records.md): `HasLogged` on the records of a `FakeLogCollector`
