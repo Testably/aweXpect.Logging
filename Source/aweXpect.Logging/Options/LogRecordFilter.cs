@@ -14,6 +14,7 @@ namespace aweXpect.Options;
 internal sealed class LogRecordFilter(LogLevel? level)
 {
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
+	private bool _orHigher;
 
 	public StringEqualityOptions AddMessage(string expected)
 	{
@@ -21,6 +22,12 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		_messages.Add((expected, options));
 		return options;
 	}
+
+	/// <summary>
+	///     Also matches records with a more severe level than the expected one.
+	/// </summary>
+	public void OrHigher()
+		=> _orHigher = true;
 
 	/// <summary>
 	///     Rejects an unusable expected message, e.g. an invalid regex, also when no record is compared with it.
@@ -35,7 +42,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 
 	public async ValueTask<bool> Matches(FakeLogRecord record)
 	{
-		if (level is not null && record.Level != level)
+		if (level is not null && (_orHigher ? record.Level < level : record.Level != level))
 		{
 			return false;
 		}
@@ -59,7 +66,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		List<string> conditions = [];
 		if (level is not null)
 		{
-			conditions.Add($"level {Formatter.Format(level.Value)}");
+			conditions.Add($"level {Formatter.Format(level.Value)}{(_orHigher ? " or higher" : "")}");
 		}
 
 		foreach ((string expected, StringEqualityOptions options) in _messages)

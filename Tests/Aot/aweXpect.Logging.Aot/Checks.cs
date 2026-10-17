@@ -32,6 +32,9 @@ internal static partial class Checks
 					.HasLogged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex(),
 				"has logged a record with level Warning and message matching regex \"^Retry [0-9]+$\"",
 				"but it did not log any such record")),
+		new("a collector with a record of a higher level passes",
+			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Critical, "Retry limit reached"))
+				.HasLogged(LogLevel.Warning).OrHigher())),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)

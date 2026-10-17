@@ -26,25 +26,28 @@ public static partial class ThatFakeLogCollector
 	/// </summary>
 	[GuaranteesNotNull]
 	public static HasLoggedResult HasLogged(this IThat<FakeLogCollector?> source)
-		=> HasLogged(source, new LogRecordFilter(null));
+	{
+		LogRecordFilter filter = new(null);
+		Quantifier quantifier = new();
+		return new HasLoggedResult(AddHasLoggedConstraint(source, filter, quantifier), source, filter, quantifier);
+	}
 
 	/// <summary>
 	///     Verifies that the subject has logged a record with the <paramref name="level" />, by default at least once.
 	/// </summary>
 	[GuaranteesNotNull]
-	public static HasLoggedResult HasLogged(this IThat<FakeLogCollector?> source, LogLevel level)
-		=> HasLogged(source, new LogRecordFilter(level));
-
-	private static HasLoggedResult HasLogged(IThat<FakeLogCollector?> source, LogRecordFilter filter)
+	public static HasLoggedLevelResult HasLogged(this IThat<FakeLogCollector?> source, LogLevel level)
 	{
+		LogRecordFilter filter = new(level);
 		Quantifier quantifier = new();
-		return new HasLoggedResult(
-			source.Get().ExpectationBuilder.AddConstraint((Filter: filter, Quantifier: quantifier),
-				static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier)),
-			source,
-			filter,
+		return new HasLoggedLevelResult(AddHasLoggedConstraint(source, filter, quantifier), source, filter,
 			quantifier);
 	}
+
+	private static ExpectationBuilder AddHasLoggedConstraint(IThat<FakeLogCollector?> source, LogRecordFilter filter,
+		Quantifier quantifier)
+		=> source.Get().ExpectationBuilder.AddConstraint((Filter: filter, Quantifier: quantifier),
+			static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier));
 
 	private sealed class HasLoggedConstraint(
 		string it,

@@ -4,6 +4,10 @@
 namespace aweXpect.Results
 {
     public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult> { }
+    public sealed class HasLoggedLevelResult : aweXpect.Results.HasLoggedResult
+    {
+        public aweXpect.Results.HasLoggedResult OrHigher() { }
+    }
     public sealed class HasLoggedMessageResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class HasLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedResult>
     {
@@ -30,6 +34,6 @@ namespace aweXpect
         [aweXpect.Core.GuaranteesNotNull]
         public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.HasLoggedLevelResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
     }
 }
