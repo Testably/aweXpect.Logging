@@ -130,6 +130,17 @@ internal static partial class Checks
 					await That(collector).HasLogged(LogLevel.Information).Then(r => r.HasLogged(LogLevel.Warning));
 				},
 				"a record with level Warning in order", "but it logged a record with level Warning too early")),
+		new("a generic fake logger with a record passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogger<Repository<int>> logger = new();
+				logger.LogWarning("Retry limit reached");
+				await That(logger).HasLogged(LogLevel.Warning).WithCategory<Repository<int>>()
+					.And.HasNotLogged(LogLevel.Error);
+			})),
+		new("a fake logger without a record fails",
+			() => ShouldFail(async () => await That(new FakeLogger()).HasLogged(LogLevel.Warning),
+				"has logged a record with level Warning", "but it did not log any record")),
 	];
 
 	private sealed class Repository<T>;

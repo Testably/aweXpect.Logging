@@ -10,6 +10,18 @@ FakeLogCollector collector = new();
 ILogger logger = new FakeLogger(collector);
 ```
 
+All expectations are also available on a `FakeLogger` itself, which verifies the records of its `Collector`, so also
+the records of other loggers that write to the same collector:
+
+```csharp
+FakeLogger<OrderService> logger = new();
+logger.LogWarning("Retry limit reached");
+
+await Expect.That(logger).HasLogged(LogLevel.Warning).And.HasNotLogged(LogLevel.Error);
+```
+
+`And` and `Or` then continue with further expectations on these records, e.g. `HasLogged` or `HasNotLogged`.
+
 ## Level
 
 You can verify that at least one record with the log level was logged:
