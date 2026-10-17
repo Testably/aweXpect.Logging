@@ -25,7 +25,7 @@ fail with:
 
 ```text title="Failure message"
 Expected that collector
-has logged a record with level Warning,
+has logged a record with level Warning at least once,
 but it only logged records with other levels
 
 Records:
@@ -39,7 +39,6 @@ Records:
 | Expectation                                       | Subject            | Summary                                        |
 |---------------------------------------------------|--------------------|------------------------------------------------|
 | [`HasLogged`](Docs/pages/01-log-records.md#level) | `FakeLogCollector` | logged at least one record with the log level  |
-
 ## Documentation
 
 The full documentation is available at

@@ -25,7 +25,7 @@ The log level must match exactly, so a record with the level `Error` does not sa
 
 ```text title="Failure message"
 Expected that collector
-has logged a record with level Warning,
+has logged a record with level Warning at least once,
 but it only logged records with other levels
 
 Records:
@@ -39,9 +39,41 @@ instead:
 
 ```text title="Failure message"
 Expected that collector
-has logged a record with level Warning,
+has logged a record with level Warning at least once,
 but it did not log any record
 ```
 
 The records are read once, when the expectation is evaluated, so a record that is logged afterwards is neither
 considered nor listed.
+
+## Quantifiers
+
+By default, a single matching record is enough. You can specify how many matching records are expected instead:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Warning).Once();
+await Expect.That(collector).HasLogged(LogLevel.Warning).Twice();
+await Expect.That(collector).HasLogged(LogLevel.Warning).Exactly(3.Times());
+await Expect.That(collector).HasLogged(LogLevel.Warning).AtLeast(2.Times());
+await Expect.That(collector).HasLogged(LogLevel.Warning).AtMost().Once();
+await Expect.That(collector).HasLogged(LogLevel.Warning).Between(1).And(3.Times());
+await Expect.That(collector).HasLogged(LogLevel.Warning).LessThan(3.Times());
+await Expect.That(collector).HasLogged(LogLevel.Warning).MoreThan().Once();
+await Expect.That(collector).HasLogged(LogLevel.Error).Never();
+```
+
+If two warnings were logged, `HasLogged(LogLevel.Warning).Once()` would fail with:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Warning exactly once,
+but it logged 2 such records
+
+Records:
+[
+  [Warning] "Retry 1",
+  [Warning] "Retry 2"
+]
+```
+
+Only one quantifier can be specified for each `HasLogged`.

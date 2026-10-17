@@ -17,6 +17,13 @@ internal static class Checks
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Information, "Starting"))
 					.HasLogged(LogLevel.Warning),
 				"has logged a record with level Warning", "  [Information] \"Starting\"")),
+		new("a collector with the expected number of records passes",
+			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+				.HasLogged(LogLevel.Warning).Once())),
+		new("a collector with another number of records fails",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasLogged(LogLevel.Warning).Twice(),
+				"has logged a record with level Warning exactly twice", "but it logged 1 such record")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
