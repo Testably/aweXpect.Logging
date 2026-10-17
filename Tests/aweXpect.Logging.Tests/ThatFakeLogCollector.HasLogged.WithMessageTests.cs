@@ -241,7 +241,7 @@ public sealed partial class ThatFakeLogCollector
 			private static FakeLogCollector WithRecord(LogLevel level, string message)
 			{
 				FakeLogCollector collector = new();
-				new FakeLogger(collector).Log(level, message);
+				new FakeLogger(collector).Log(level, "{Message}", message);
 				return collector;
 			}
 		}
