@@ -21,7 +21,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	/// </summary>
 	private const string OriginalFormat = "{OriginalFormat}";
 
-	private readonly List<string> _categories = [];
+	private readonly List<(string Expected, StringEqualityOptions Options)> _categories = [];
 	private readonly List<int> _eventIds = [];
 	private readonly List<Type> _exceptionTypes = [];
 	private readonly List<string> _messageTemplates = [];
@@ -29,8 +29,12 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	private readonly List<PropertyCondition> _properties = [];
 	private bool _orHigher;
 
-	public void AddCategory(string category)
-		=> _categories.Add(category);
+	public StringEqualityOptions AddCategory(string expected)
+	{
+		StringEqualityOptions options = new(nameof(expected));
+		_categories.Add((expected, options));
+		return options;
+	}
 
 	public void AddEventId(int eventId)
 		=> _eventIds.Add(eventId);
@@ -129,11 +133,11 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		=> _orHigher = true;
 
 	/// <summary>
-	///     Rejects an unusable expected message, e.g. an invalid regex, also when no record is compared with it.
+	///     Rejects an unusable expected value, e.g. an invalid regex, also when no record is compared with it.
 	/// </summary>
 	public void ValidateExpected()
 	{
-		foreach ((string expected, StringEqualityOptions options) in _messages)
+		foreach ((string expected, StringEqualityOptions options) in _categories.Concat(_messages))
 		{
 			options.ValidateExpected(expected);
 		}
@@ -154,11 +158,18 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
-		if (_categories.Any(category => !string.Equals(category, record.Category, StringComparison.Ordinal)) ||
-		    _eventIds.Any(eventId => eventId != record.Id.Id) ||
+		if (_eventIds.Any(eventId => eventId != record.Id.Id) ||
 		    _exceptionTypes.Any(exceptionType => !exceptionType.IsInstanceOfType(record.Exception)))
 		{
 			return false;
+		}
+
+		foreach ((string expected, StringEqualityOptions options) in _categories)
+		{
+			if (!await options.AreConsideredEqual(record.Category, expected))
+			{
+				return false;
+			}
 		}
 
 		if ((_messageTemplates.Count > 0 || _properties.Count > 0) &&
@@ -206,9 +217,11 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"exception of type {Formatter.Format(exceptionType)}");
 		}
 
-		foreach (string category in _categories)
+		// Unlike the expectation of the options, which shortens a long value, a category is shown completely, as full
+		// type names often only differ in their last part.
+		foreach ((string expected, StringEqualityOptions options) in _categories)
 		{
-			conditions.Add($"category {Formatter.Format(category)}");
+			conditions.Add($"category {Formatter.Format(expected)}{options}");
 		}
 
 		foreach (int eventId in _eventIds)

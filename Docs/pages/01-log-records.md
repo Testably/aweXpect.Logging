@@ -130,11 +130,14 @@ the category of the logger and the event ID of the record:
 ```csharp
 await Expect.That(collector).HasLogged(LogLevel.Warning).WithCategory<OrderService>();
 await Expect.That(collector).HasLogged().WithCategory("MyApp.Orders").WithEventId(1001);
+await Expect.That(collector).HasLogged().WithCategory("MyApp.Orders.").AsPrefix();
 ```
 
 `WithCategory<T>()` expects the category of an `ILogger<T>`, i.e. the full name of the type, where nested types are
-separated by a dot and generic types are named without their type arguments. The category and the event ID are
-compared exactly, and the failure message lists them for each record when they are compared:
+separated by a dot and generic types are named without their type arguments, and compares it exactly. The category of
+`WithCategory(string)` must be equal by default, but as for the message, you can change the match type, e.g. with
+`AsPrefix()` or `AsWildcard()`, and the comparison, e.g. with `IgnoringCase()`. The event ID is compared exactly, and
+the failure message lists the category and the event ID for each record when they are compared:
 
 ```text title="Failure message"
 Expected that collector

@@ -20,16 +20,16 @@ public class LogRecordStepResult
 
 	internal LogRecordFilter Filter { get; }
 
-	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithCategory(string)" />
-	public LogRecordStepResult WithCategory(string category)
-	{
-		Filter.AddCategory(category);
-		return this;
-	}
+	/// <inheritdoc cref="HasLoggedResult.WithCategory(string)" />
+	public LogRecordStepCategoryResult WithCategory(string expected)
+		=> new(Filter, Filter.AddCategory(expected));
 
 	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithCategory{TCategory}()" />
 	public LogRecordStepResult WithCategory<TCategory>()
-		=> WithCategory(LogRecordFilter.GetCategoryName(typeof(TCategory)));
+	{
+		Filter.AddCategory(LogRecordFilter.GetCategoryName(typeof(TCategory)));
+		return this;
+	}
 
 	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithEventId(int)" />
 	public LogRecordStepResult WithEventId(int eventId)

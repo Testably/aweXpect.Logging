@@ -97,6 +97,14 @@ internal static partial class Checks
 				logger.LogInformation("Saving");
 				await That(collector).HasLogged().WithCategory<Repository<string>>();
 			})),
+		new("a collector with a record of a category matching the pattern passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger<Repository<int>> logger = new(collector);
+				logger.LogInformation("Saving");
+				await That(collector).HasLogged().WithCategory(".Checks.Repository").AsSuffix();
+			})),
 		new("a collector without a record of the event ID fails and lists the event IDs",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
 					.HasLogged().WithEventId(1001),
