@@ -15,22 +15,17 @@ namespace aweXpect.Results;
 ///     <see cref="Quantifier" />, because the <see cref="QuantifierExtensions" /> would return this type again, while a
 ///     quantified result must be a <see cref="HasLoggedCountResult" /> that only offers the options still applying to it.
 /// </remarks>
-public class HasLoggedResult
-	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasLoggedResult>
+public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 {
-	private readonly LogRecordFilter _filter;
 	private readonly Quantifier _quantifier;
-	private readonly IThat<FakeLogCollector?> _returnValue;
 
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		LogRecordFilter filter, Quantifier quantifier)
-		: base(expectationBuilder, returnValue)
+		: base(expectationBuilder, returnValue, filter)
 	{
-		_returnValue = returnValue;
-		_filter = filter;
 		_quantifier = quantifier;
 	}
 
@@ -139,8 +134,8 @@ public class HasLoggedResult
 	///     <c>IgnoringCase()</c>.
 	/// </remarks>
 	public HasLoggedMessageResult WithMessage(string expected)
-		=> new(ExpectationBuilder, _returnValue, _filter, _quantifier, _filter.AddMessage(expected));
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, Filter.AddMessage(expected));
 
 	private HasLoggedCountResult Quantified()
-		=> new(ExpectationBuilder, _returnValue);
+		=> new(ExpectationBuilder, ReturnValue);
 }

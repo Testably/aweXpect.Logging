@@ -10,7 +10,7 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedResult OrHigher() { }
     }
     public sealed class HasLoggedMessageResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public class HasLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedResult>
+    public class HasLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasLoggedResult>
     {
         public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> AtLeast() { }
         public aweXpect.Results.HasLoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
@@ -32,9 +32,15 @@ namespace aweXpect.Results
         public aweXpect.Results.HasNotLoggedResult OrHigher() { }
     }
     public sealed class HasNotLoggedMessageResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public class HasNotLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasNotLoggedResult>
+    public class HasNotLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasNotLoggedResult>
     {
         public aweXpect.Results.HasNotLoggedMessageResult WithMessage(string expected) { }
+    }
+    public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
+        where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
+    {
+        public TSelf WithException<TException>()
+            where TException : System.Exception { }
     }
 }
 namespace aweXpect

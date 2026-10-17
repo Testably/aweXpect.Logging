@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using aweXpect.Core;
@@ -13,8 +14,12 @@ namespace aweXpect.Options;
 /// </summary>
 internal sealed class LogRecordFilter(LogLevel? level)
 {
+	private readonly List<Type> _exceptionTypes = [];
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
 	private bool _orHigher;
+
+	public void AddException(Type exceptionType)
+		=> _exceptionTypes.Add(exceptionType);
 
 	public StringEqualityOptions AddMessage(string expected)
 	{
@@ -47,6 +52,14 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
+		foreach (Type exceptionType in _exceptionTypes)
+		{
+			if (!exceptionType.IsInstanceOfType(record.Exception))
+			{
+				return false;
+			}
+		}
+
 		foreach ((string expected, StringEqualityOptions options) in _messages)
 		{
 			if (!await options.AreConsideredEqual(record.Message, expected))
@@ -72,6 +85,11 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		foreach ((string expected, StringEqualityOptions options) in _messages)
 		{
 			conditions.Add($"message {options.GetExpectation(expected, ExpectationGrammars.None)}");
+		}
+
+		foreach (Type exceptionType in _exceptionTypes)
+		{
+			conditions.Add($"exception of type {Formatter.Format(exceptionType)}");
 		}
 
 		return conditions.Count == 0 ? "a record" : $"a record with {string.Join(" and ", conditions)}";
