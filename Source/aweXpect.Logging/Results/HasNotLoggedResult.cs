@@ -33,6 +33,10 @@ public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 		return new HasNotLoggedWithinResult(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions);
 	}
 
+	/// <inheritdoc cref="HasLoggedResult.WithCategory(string)" />
+	public HasNotLoggedCategoryResult WithCategory(string expected)
+		=> new(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions, Filter.AddCategory(expected));
+
 	/// <summary>
 	///     Only considers records whose message is equal to the <paramref name="expected" /> message.
 	/// </summary>

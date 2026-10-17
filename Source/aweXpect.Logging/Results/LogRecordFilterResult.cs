@@ -36,25 +36,18 @@ public abstract class LogRecordFilterResult<TSelf>
 	private protected IThat<FakeLogCollector?> ReturnValue { get; }
 
 	/// <summary>
-	///     Only considers records whose category is equal to the <paramref name="category" />.
-	/// </summary>
-	/// <remarks>
-	///     The category of an <see cref="Microsoft.Extensions.Logging.ILogger{TCategoryName}" /> is the full name of
-	///     its type argument, e.g. <c>MyApp.Services.OrderService</c>, which <see cref="WithCategory{TCategory}()" />
-	///     determines from the type.
-	/// </remarks>
-	public TSelf WithCategory(string category)
-	{
-		Filter.AddCategory(category);
-		return (TSelf)this;
-	}
-
-	/// <summary>
 	///     Only considers records that were logged by an
 	///     <see cref="Microsoft.Extensions.Logging.ILogger{TCategoryName}" /> for <typeparamref name="TCategory" />.
 	/// </summary>
+	/// <remarks>
+	///     The category of the logger is the full name of the type, e.g. <c>MyApp.Services.OrderService</c>, and is
+	///     compared exactly.
+	/// </remarks>
 	public TSelf WithCategory<TCategory>()
-		=> WithCategory(LogRecordFilter.GetCategoryName(typeof(TCategory)));
+	{
+		Filter.AddCategory(LogRecordFilter.GetCategoryName(typeof(TCategory)));
+		return (TSelf)this;
+	}
 
 	/// <summary>
 	///     Only considers records whose event ID is equal to the <paramref name="eventId" />.

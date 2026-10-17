@@ -10,6 +10,71 @@ public sealed partial class ThatFakeLogCollector
 		public sealed class WithCategoryTests
 		{
 			[Fact]
+			public async Task AsPrefix_WhenCategoryStartsWithExpected_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				ILogger logger = factory.CreateLogger("MyApp.Orders.OrderService");
+				logger.LogWarning("Retry limit reached");
+
+				async Task Act()
+					=> await That(subject).HasLogged(LogLevel.Warning).WithCategory("MyApp.Orders.").AsPrefix();
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task AsRegex_WhenPatternIsInvalid_ShouldThrowArgumentException()
+			{
+				FakeLogCollector subject = new();
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithCategory("(").AsRegex();
+
+				await That(Act).Throws<ArgumentException>()
+					.Because("an unusable pattern is rejected even when no record is compared with it");
+			}
+
+			[Fact]
+			public async Task AsWildcard_WhenCategoryDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				ILogger logger = factory.CreateLogger("MyApp.Payments.PaymentService");
+				logger.LogWarning("Payment declined");
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithCategory("myapp.orders.*").AsWildcard().IgnoringCase();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with category "myapp.orders.*" as wildcard ignoring case at least once,
+					             but it did not log any such record
+
+					             Records:
+					             [
+					               [Warning] "Payment declined" (category "MyApp.Payments.PaymentService")
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task AsWildcard_WhenUsedInAStep_ShouldMatchTheCategory()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				factory.CreateLogger("MyApp.Hosting").LogInformation("Starting");
+				factory.CreateLogger("MyApp.Orders.OrderService").LogWarning("Retry 1");
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithCategory("MyApp.Hosting")
+						.Then(r => r.HasLogged(LogLevel.Warning).WithCategory("MyApp.Orders.*").AsWildcard());
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
 			public async Task Generic_ForNestedGenericType_ShouldMatchTheCategoryOfTheLogger()
 			{
 				FakeLogCollector subject = new();
@@ -72,6 +137,20 @@ public sealed partial class ThatFakeLogCollector
 					               [Information] "Placing order" (category "aweXpect.Logging.Tests.ThatFakeLogCollector.HasLogged.WithCategoryTests.PaymentService")
 					             ]
 					             """);
+			}
+
+			[Fact]
+			public async Task IgnoringCase_WhenCategoryDiffersInCase_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				ILogger logger = factory.CreateLogger("MyApp.Orders");
+				logger.LogWarning("Retry limit reached");
+
+				async Task Act()
+					=> await That(subject).HasLogged(LogLevel.Warning).WithCategory("myapp.orders").IgnoringCase();
+
+				await That(Act).DoesNotThrow();
 			}
 
 			[Fact]

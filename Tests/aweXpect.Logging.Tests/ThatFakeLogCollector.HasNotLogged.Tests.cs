@@ -178,6 +178,35 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
+			public async Task WithCategory_WhenMatchingCategoryWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				ILogger logger = factory.CreateLogger("MyApp.Orders.OrderService");
+				logger.LogError("Order failed");
+
+				async Task Act()
+					=> await That(subject).HasNotLogged(LogLevel.Error).WithCategory("MyApp.Orders.").AsPrefix();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with level Error and category "MyApp.Orders." as prefix,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Error] "Order failed" (category "MyApp.Orders.OrderService")
+					             ]
+
+					             Records:
+					             [
+					               [Error] "Order failed" (category "MyApp.Orders.OrderService")
+					             ]
+					             """);
+			}
+
+			[Fact]
 			public async Task WithCategory_WhenOnlyOtherCategoriesLogged_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();

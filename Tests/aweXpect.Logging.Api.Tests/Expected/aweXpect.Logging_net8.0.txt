@@ -3,6 +3,7 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
 namespace aweXpect.Results
 {
+    public sealed class HasLoggedCategoryResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
     {
         public aweXpect.Results.HasLoggedCountWithinResult Within(System.TimeSpan timeout) { }
@@ -45,6 +46,7 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedCountResult Once() { }
         public aweXpect.Results.HasLoggedInOrderResult Then(params System.Func<aweXpect.Results.LogRecordStep, aweXpect.Results.LogRecordStepResult>[] steps) { }
         public aweXpect.Results.HasLoggedCountResult Twice() { }
+        public aweXpect.Results.HasLoggedCategoryResult WithCategory(string expected) { }
         public aweXpect.Results.HasLoggedMessageResult WithMessage(string expected) { }
         public aweXpect.Results.HasLoggedPropertyResult WithProperty(string name) { }
         public aweXpect.Results.HasLoggedWithinResult Within(System.TimeSpan timeout) { }
@@ -53,6 +55,7 @@ namespace aweXpect.Results
     {
         public aweXpect.Results.HasLoggedResult CheckEvery(System.TimeSpan interval) { }
     }
+    public sealed class HasNotLoggedCategoryResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public sealed class HasNotLoggedLevelResult : aweXpect.Results.HasNotLoggedResult
     {
         public aweXpect.Results.HasNotLoggedResult OrHigher() { }
@@ -65,6 +68,7 @@ namespace aweXpect.Results
     public sealed class HasNotLoggedPropertyValueResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class HasNotLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasNotLoggedResult>
     {
+        public aweXpect.Results.HasNotLoggedCategoryResult WithCategory(string expected) { }
         public aweXpect.Results.HasNotLoggedMessageResult WithMessage(string expected) { }
         public aweXpect.Results.HasNotLoggedPropertyResult WithProperty(string name) { }
         public aweXpect.Results.HasNotLoggedWithinResult Within(System.TimeSpan timeout) { }
@@ -76,7 +80,6 @@ namespace aweXpect.Results
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
     {
-        public TSelf WithCategory(string category) { }
         public TSelf WithCategory<TCategory>() { }
         public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>()
@@ -88,6 +91,7 @@ namespace aweXpect.Results
         public aweXpect.Results.LogRecordStepResult HasLogged() { }
         public aweXpect.Results.LogRecordStepLevelResult HasLogged(Microsoft.Extensions.Logging.LogLevel level) { }
     }
+    public sealed class LogRecordStepCategoryResult : aweXpect.Results.LogRecordStepResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public sealed class LogRecordStepLevelResult : aweXpect.Results.LogRecordStepResult
     {
         public aweXpect.Results.LogRecordStepResult OrHigher() { }
@@ -100,7 +104,7 @@ namespace aweXpect.Results
     public sealed class LogRecordStepPropertyValueResult : aweXpect.Results.LogRecordStepResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class LogRecordStepResult
     {
-        public aweXpect.Results.LogRecordStepResult WithCategory(string category) { }
+        public aweXpect.Results.LogRecordStepCategoryResult WithCategory(string expected) { }
         public aweXpect.Results.LogRecordStepResult WithCategory<TCategory>() { }
         public aweXpect.Results.LogRecordStepResult WithEventId(int eventId) { }
         public aweXpect.Results.LogRecordStepResult WithException<TException>()

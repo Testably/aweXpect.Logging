@@ -175,6 +175,18 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	}
 
 	/// <summary>
+	///     Only counts records whose category is equal to the <paramref name="expected" /> category.
+	/// </summary>
+	/// <remarks>
+	///     The category of an <see cref="Microsoft.Extensions.Logging.ILogger{TCategoryName}" /> is the full name of
+	///     its type argument, e.g. <c>MyApp.Services.OrderService</c>. The match type and the comparison can be
+	///     changed on the result, e.g. with <c>AsPrefix()</c> or <c>AsWildcard()</c>.
+	/// </remarks>
+	public HasLoggedCategoryResult WithCategory(string expected)
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, _steps,
+			Filter.AddCategory(expected));
+
+	/// <summary>
 	///     Only counts records whose message is equal to the <paramref name="expected" /> message.
 	/// </summary>
 	/// <remarks>
