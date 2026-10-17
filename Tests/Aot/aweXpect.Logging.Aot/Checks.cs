@@ -35,6 +35,10 @@ internal static partial class Checks
 		new("a collector with a record of a higher level passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Critical, "Retry limit reached"))
 				.HasLogged(LogLevel.Warning).OrHigher())),
+		new("a collector with an unexpected record fails and lists the matching records",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasLogged(LogLevel.Warning).Never(),
+				"Matching records:", "  [Warning] \"Retry limit reached\"")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
