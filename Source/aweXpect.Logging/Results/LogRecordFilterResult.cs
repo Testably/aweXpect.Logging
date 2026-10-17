@@ -89,4 +89,18 @@ public abstract class LogRecordFilterResult<TSelf>
 		Filter.AddException(typeof(TException));
 		return (TSelf)this;
 	}
+
+	/// <summary>
+	///     Only considers records whose message template, e.g. <c>Retry {Attempt} of {MaxAttempts}</c>, is equal to the
+	///     <paramref name="expected" /> template.
+	/// </summary>
+	/// <remarks>
+	///     Unlike the message, the template does not depend on the values that were logged, so that it identifies the
+	///     statement that logged the record.
+	/// </remarks>
+	public TSelf WithMessageTemplate(string expected)
+	{
+		Filter.AddMessageTemplate(expected);
+		return (TSelf)this;
+	}
 }

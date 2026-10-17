@@ -136,6 +136,16 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	public HasLoggedMessageResult WithMessage(string expected)
 		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, Filter.AddMessage(expected));
 
+	/// <summary>
+	///     Only counts records with a property <paramref name="name" />, e.g. <c>Attempt</c> for the message template
+	///     <c>Retry {Attempt}</c>.
+	/// </summary>
+	/// <remarks>
+	///     Its value can be verified on the result with <see cref="HasLoggedPropertyResult.WithValue(string)" />.
+	/// </remarks>
+	public HasLoggedPropertyResult WithProperty(string name)
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, Filter.AddProperty(name));
+
 	private HasLoggedCountResult Quantified()
 		=> new(ExpectationBuilder, ReturnValue, RepeatedCheckOptions);
 }

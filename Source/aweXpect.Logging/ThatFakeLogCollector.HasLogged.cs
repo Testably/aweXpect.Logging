@@ -144,11 +144,8 @@ public static partial class ThatFakeLogCollector
 		{
 			if (records.Count > 0)
 			{
-				bool showsCategory = filter.ComparesCategory;
-				bool showsEventId = filter.ComparesEventId;
 				contexts.Add(new ResultContext.SyncCallback(title,
-					() => Formatter.Format(
-						records.Select(record => new FormattedRecord(record, showsCategory, showsEventId)).ToArray(),
+					() => Formatter.Format(records.Select(record => new FormattedRecord(record, filter)).ToArray(),
 						FormattingOptions.MultipleLines), priority));
 			}
 		}
@@ -206,14 +203,14 @@ public static partial class ThatFakeLogCollector
 	}
 
 	/// <summary>
-	///     Lists a record by its level, its message and the type of its exception, if any, and by its category and
-	///     event ID, when they are compared.
+	///     Lists a record by its level, its message and the type of its exception, if any, and by the further details
+	///     that the <see cref="LogRecordFilter" /> compares, e.g. its category.
 	/// </summary>
 	/// <remarks>
 	///     A <see cref="FakeLogRecord" /> itself would be listed with all its members, which hides the level and the
 	///     message among details like the timestamp.
 	/// </remarks>
-	private sealed class FormattedRecord(FakeLogRecord record, bool showsCategory, bool showsEventId)
+	private sealed class FormattedRecord(FakeLogRecord record, LogRecordFilter filter)
 	{
 		public override string ToString()
 		{
@@ -223,16 +220,7 @@ public static partial class ThatFakeLogCollector
 				details.Add(Formatter.Format(record.Exception.GetType()));
 			}
 
-			if (showsCategory)
-			{
-				details.Add($"category {Formatter.Format(record.Category)}");
-			}
-
-			if (showsEventId)
-			{
-				details.Add($"event ID {record.Id.Id}");
-			}
-
+			details.AddRange(filter.GetComparedDetails(record));
 			string formattedRecord = $"[{Formatter.Format(record.Level)}] {Formatter.Format(record.Message)}";
 			return details.Count == 0 ? formattedRecord : $"{formattedRecord} ({string.Join(", ", details)})";
 		}

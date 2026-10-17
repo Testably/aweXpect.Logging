@@ -34,4 +34,14 @@ public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 	/// </remarks>
 	public HasNotLoggedMessageResult WithMessage(string expected)
 		=> new(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions, Filter.AddMessage(expected));
+
+	/// <summary>
+	///     Only considers records with a property <paramref name="name" />, e.g. <c>Attempt</c> for the message
+	///     template <c>Retry {Attempt}</c>.
+	/// </summary>
+	/// <remarks>
+	///     Its value can be verified on the result with <see cref="HasNotLoggedPropertyResult.WithValue(string)" />.
+	/// </remarks>
+	public HasNotLoggedPropertyResult WithProperty(string name)
+		=> new(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions, Filter.AddProperty(name));
 }

@@ -12,6 +12,11 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedResult OrHigher() { }
     }
     public sealed class HasLoggedMessageResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public sealed class HasLoggedPropertyResult : aweXpect.Results.HasLoggedResult
+    {
+        public aweXpect.Results.HasLoggedPropertyValueResult WithValue(string? expected) { }
+    }
+    public sealed class HasLoggedPropertyValueResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class HasLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasLoggedResult>
     {
         public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> AtLeast() { }
@@ -28,15 +33,22 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedCountResult Once() { }
         public aweXpect.Results.HasLoggedCountResult Twice() { }
         public aweXpect.Results.HasLoggedMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.HasLoggedPropertyResult WithProperty(string name) { }
     }
     public sealed class HasNotLoggedLevelResult : aweXpect.Results.HasNotLoggedResult
     {
         public aweXpect.Results.HasNotLoggedResult OrHigher() { }
     }
     public sealed class HasNotLoggedMessageResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public sealed class HasNotLoggedPropertyResult : aweXpect.Results.HasNotLoggedResult
+    {
+        public aweXpect.Results.HasNotLoggedPropertyValueResult WithValue(string? expected) { }
+    }
+    public sealed class HasNotLoggedPropertyValueResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public class HasNotLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasNotLoggedResult>
     {
         public aweXpect.Results.HasNotLoggedMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.HasNotLoggedPropertyResult WithProperty(string name) { }
     }
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
@@ -46,6 +58,7 @@ namespace aweXpect.Results
         public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>()
             where TException : System.Exception { }
+        public TSelf WithMessageTemplate(string expected) { }
         public TSelf Within(System.TimeSpan timeout) { }
     }
 }

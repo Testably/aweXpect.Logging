@@ -262,6 +262,33 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
+			public async Task WithMessageTemplate_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).HasNotLogged().WithMessageTemplate("Payment retried {Attempt} times");
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with message template equal to "Payment retried {Attempt} times",
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Fact]
 			public async Task WithMessage_WhenMessageDiffers_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -300,6 +327,45 @@ public sealed partial class ThatFakeLogCollector
 					             [
 					               [Warning] "Connection lost",
 					               [Warning] "Retry 1"
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task WithProperty_WhenOnlyOtherValuesWereLogged_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).HasNotLogged(LogLevel.Warning).WithProperty("Attempt").WithValue("5");
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task WithProperty_WhenPropertyWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).HasNotLogged().WithProperty("Attempt");
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with property Attempt,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (property Attempt "3")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (property Attempt "3")
 					             ]
 					             """);
 			}
@@ -344,6 +410,9 @@ public sealed partial class ThatFakeLogCollector
 
 			private static readonly Action<ILogger, Exception?> LogPaymentDeclined =
 				LoggerMessage.Define(LogLevel.Error, new EventId(2001), "Payment declined");
+
+			private static readonly Action<ILogger, int, Exception?> LogPaymentRetried =
+				LoggerMessage.Define<int>(LogLevel.Warning, new EventId(2002), "Payment retried {Attempt} times");
 		}
 
 		public sealed class NegatedTests

@@ -135,6 +135,44 @@ Records:
 ]
 ```
 
+## Properties and message template
+
+With structured logging, a record stores its message template and the values of its placeholders as properties:
+
+```csharp
+logger.LogWarning("Retry {Attempt} of {MaxAttempts}", 3, 5);
+
+await Expect.That(collector).HasLogged(LogLevel.Warning).WithProperty("Attempt");
+await Expect.That(collector).HasLogged(LogLevel.Warning).WithProperty("Attempt").WithValue("3");
+await Expect.That(collector).HasLogged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}").Twice();
+```
+
+`WithProperty` alone only requires the property, while `WithValue` also verifies its value. The `FakeLogger` stores the
+values of the properties as strings in the invariant culture, e.g. `"1.5"` for the `double` 1.5, so the expected value
+is a string, too. It must be equal by default, and as for the message, you can change the match type of the value,
+e.g. with `AsWildcard()`, and the comparison, e.g. with `IgnoringCase()`:
+
+```csharp
+await Expect.That(collector).HasLogged().WithProperty("OrderId").WithValue("ORD-*").AsWildcard();
+```
+
+The template does not depend on the logged values, so it identifies the statement that logged a record, and is
+compared exactly. The failure message lists the compared template and properties for each record:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Warning and property Attempt with value equal to "3" at least once,
+but it did not log any such record
+
+Records:
+[
+  [Warning] "Retry 2 of 5" (property Attempt "2")
+]
+```
+
+A record that was logged with a custom state object instead of a message template has no properties, which the failure
+message shows as `(no structured state)`.
+
 ## Quantifiers
 
 By default, a single matching record is enough. You can specify how many matching records are expected instead:
