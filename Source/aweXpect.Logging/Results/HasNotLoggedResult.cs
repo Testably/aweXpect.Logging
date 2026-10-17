@@ -1,3 +1,4 @@
+using System;
 using aweXpect.Core;
 using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
@@ -23,6 +24,13 @@ public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
+	}
+
+	/// <inheritdoc cref="HasLoggedResult.Within(TimeSpan)" />
+	public HasNotLoggedWithinResult Within(TimeSpan timeout)
+	{
+		RepeatedCheckOptions.Within(timeout);
+		return new HasNotLoggedWithinResult(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions);
 	}
 
 	/// <summary>

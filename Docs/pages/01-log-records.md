@@ -312,7 +312,7 @@ The records are read until their amount decides the outcome, so the expectation 
   the full timeout and fails as soon as it is violated.
 
 The records are read every 100 milliseconds by default (`Customize.aweXpect.Settings().DefaultCheckInterval`). You can
-change the interval with `CheckEvery`, which requires `Within` before:
+change the interval with `CheckEvery` directly after `Within`:
 
 ```csharp
 await Expect.That(collector).HasLogged(LogLevel.Warning)
