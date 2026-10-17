@@ -37,7 +37,7 @@ internal static class Checks
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
 	{
 		FakeLogCollector collector = new();
-		new FakeLogger(collector).Log(level, message);
+		new FakeLogger(collector).Log(level, "{Message}", message);
 		return collector;
 	}
 
