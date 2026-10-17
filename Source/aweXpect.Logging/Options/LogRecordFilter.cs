@@ -16,21 +16,18 @@ namespace aweXpect.Options;
 /// </summary>
 internal sealed class LogRecordFilter(LogLevel? level)
 {
+	/// <summary>
+	///     The key of the message template in the structured state of a record.
+	/// </summary>
+	private const string OriginalFormat = "{OriginalFormat}";
+
 	private readonly List<string> _categories = [];
 	private readonly List<int> _eventIds = [];
 	private readonly List<Type> _exceptionTypes = [];
+	private readonly List<string> _messageTemplates = [];
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
+	private readonly List<(string Name, string? Value)> _properties = [];
 	private bool _orHigher;
-
-	/// <summary>
-	///     Whether the category is compared, so that the failure message lists it for each record.
-	/// </summary>
-	public bool ComparesCategory => _categories.Count > 0;
-
-	/// <summary>
-	///     Whether the event ID is compared, so that the failure message lists it for each record.
-	/// </summary>
-	public bool ComparesEventId => _eventIds.Count > 0;
 
 	public void AddCategory(string category)
 		=> _categories.Add(category);
@@ -77,6 +74,50 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		return options;
 	}
 
+	public void AddMessageTemplate(string expected)
+		=> _messageTemplates.Add(expected);
+
+	public void AddProperty(string name, string? value)
+		=> _properties.Add((name, value));
+
+	/// <summary>
+	///     The details of the <paramref name="record" /> that are compared beyond its level, message and exception, so
+	///     that the failure message shows why a record did not match, e.g. <c>property Attempt "2"</c>.
+	/// </summary>
+	public IEnumerable<string> GetComparedDetails(FakeLogRecord record)
+	{
+		if (_categories.Count > 0)
+		{
+			yield return $"category {Formatter.Format(record.Category)}";
+		}
+
+		if (_eventIds.Count > 0)
+		{
+			yield return $"event ID {record.Id.Id}";
+		}
+
+		if (_messageTemplates.Count == 0 && _properties.Count == 0)
+		{
+			yield break;
+		}
+
+		if (GetStructuredState(record) is not { } state)
+		{
+			yield return "no structured state";
+			yield break;
+		}
+
+		if (_messageTemplates.Count > 0)
+		{
+			yield return DescribeValue(state, OriginalFormat, "message template");
+		}
+
+		foreach (string name in _properties.Select(property => property.Name).Distinct(StringComparer.Ordinal))
+		{
+			yield return DescribeValue(state, name, $"property {name}");
+		}
+	}
+
 	/// <summary>
 	///     Also matches records with a more severe level than the expected one.
 	/// </summary>
@@ -108,6 +149,14 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
+		if ((_messageTemplates.Count > 0 || _properties.Count > 0) &&
+		    (GetStructuredState(record) is not { } state ||
+		     _messageTemplates.Any(template => !HasValue(state, OriginalFormat, template)) ||
+		     _properties.Any(property => !HasValue(state, property.Name, property.Value))))
+		{
+			return false;
+		}
+
 		foreach ((string expected, StringEqualityOptions options) in _messages)
 		{
 			if (!await options.AreConsideredEqual(record.Message, expected))
@@ -135,6 +184,11 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"message {options.GetExpectation(expected, ExpectationGrammars.None)}");
 		}
 
+		foreach (string messageTemplate in _messageTemplates)
+		{
+			conditions.Add($"message template equal to {Formatter.Format(messageTemplate)}");
+		}
+
 		foreach (Type exceptionType in _exceptionTypes)
 		{
 			conditions.Add($"exception of type {Formatter.Format(exceptionType)}");
@@ -150,6 +204,41 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"event ID {eventId}");
 		}
 
+		foreach ((string name, string? value) in _properties)
+		{
+			conditions.Add($"property {name} equal to {Formatter.Format(value)}");
+		}
+
 		return conditions.Count == 0 ? "a record" : $"a record with {string.Join(" and ", conditions)}";
+	}
+
+	private static string DescribeValue(IReadOnlyList<KeyValuePair<string, string?>> state, string key, string label)
+	{
+		KeyValuePair<string, string?> entry = FindEntry(state, key);
+		return entry.Key is null ? $"no {label}" : $"{label} {Formatter.Format(entry.Value)}";
+	}
+
+	/// <summary>
+	///     The entry with the <paramref name="key" />, or the default entry without a key, if there is none.
+	/// </summary>
+	private static KeyValuePair<string, string?> FindEntry(IReadOnlyList<KeyValuePair<string, string?>> state,
+		string key)
+		=> state.FirstOrDefault(entry => string.Equals(entry.Key, key, StringComparison.Ordinal));
+
+	/// <summary>
+	///     The properties and the message template of the <paramref name="record" />, which the
+	///     <see cref="FakeLogger" /> stores as strings.
+	/// </summary>
+	/// <remarks>
+	///     <see cref="FakeLogRecord.StructuredState" /> is not used, as it throws for a state that is no list of
+	///     properties, e.g. a custom state object, which the <see cref="FakeLogger" /> stores as its string instead.
+	/// </remarks>
+	private static IReadOnlyList<KeyValuePair<string, string?>>? GetStructuredState(FakeLogRecord record)
+		=> record.State as IReadOnlyList<KeyValuePair<string, string?>>;
+
+	private static bool HasValue(IReadOnlyList<KeyValuePair<string, string?>> state, string key, string? expected)
+	{
+		KeyValuePair<string, string?> entry = FindEntry(state, key);
+		return entry.Key is not null && string.Equals(entry.Value, expected, StringComparison.Ordinal);
 	}
 }

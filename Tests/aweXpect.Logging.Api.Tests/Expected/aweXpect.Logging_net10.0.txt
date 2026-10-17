@@ -47,6 +47,8 @@ namespace aweXpect.Results
         public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>()
             where TException : System.Exception { }
+        public TSelf WithMessageTemplate(string expected) { }
+        public TSelf WithProperty(string name, string? value) { }
         public TSelf Within(System.TimeSpan timeout) { }
     }
 }

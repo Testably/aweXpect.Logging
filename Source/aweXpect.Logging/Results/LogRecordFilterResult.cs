@@ -89,4 +89,33 @@ public abstract class LogRecordFilterResult<TSelf>
 		Filter.AddException(typeof(TException));
 		return (TSelf)this;
 	}
+
+	/// <summary>
+	///     Only considers records whose message template, e.g. <c>Retry {Attempt} of {MaxAttempts}</c>, is equal to the
+	///     <paramref name="expected" /> template.
+	/// </summary>
+	/// <remarks>
+	///     Unlike the message, the template does not depend on the values that were logged, so that it identifies the
+	///     statement that logged the record.
+	/// </remarks>
+	public TSelf WithMessageTemplate(string expected)
+	{
+		Filter.AddMessageTemplate(expected);
+		return (TSelf)this;
+	}
+
+	/// <summary>
+	///     Only considers records with a property <paramref name="name" /> whose value is equal to the
+	///     <paramref name="value" />.
+	/// </summary>
+	/// <remarks>
+	///     The <see cref="FakeLogger" /> stores the values of the properties as strings in the invariant culture, e.g.
+	///     <c>"1.5"</c> for the <see cref="double" /> 1.5, so the <paramref name="value" /> is compared with this
+	///     string.
+	/// </remarks>
+	public TSelf WithProperty(string name, string? value)
+	{
+		Filter.AddProperty(name, value);
+		return (TSelf)this;
+	}
 }
