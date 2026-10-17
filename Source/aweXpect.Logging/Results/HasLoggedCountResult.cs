@@ -12,10 +12,11 @@ namespace aweXpect.Results;
 ///     Allows combining multiple expectations with <see cref="AndOrResult{TType,TThat,TSelf}.And" /> and
 ///     <see cref="AndOrResult{TType,TThat,TSelf}.Or" />.
 /// </summary>
-public sealed class HasLoggedCountResult
+public class HasLoggedCountResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasLoggedCountResult>
 {
 	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+	private readonly IThat<FakeLogCollector?> _returnValue;
 
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
@@ -24,20 +25,14 @@ public sealed class HasLoggedCountResult
 		RepeatedCheckOptions repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
+		_returnValue = returnValue;
 		_repeatedCheckOptions = repeatedCheckOptions;
 	}
 
-	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.CheckEvery(TimeSpan)" />
-	public HasLoggedCountResult CheckEvery(TimeSpan interval)
-	{
-		_repeatedCheckOptions.CheckEveryAfterWithin(interval);
-		return this;
-	}
-
-	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.Within(TimeSpan)" />
-	public HasLoggedCountResult Within(TimeSpan timeout)
+	/// <inheritdoc cref="HasLoggedResult.Within(TimeSpan)" />
+	public HasLoggedCountWithinResult Within(TimeSpan timeout)
 	{
 		_repeatedCheckOptions.Within(timeout);
-		return this;
+		return new HasLoggedCountWithinResult(ExpectationBuilder, _returnValue, _repeatedCheckOptions);
 	}
 }

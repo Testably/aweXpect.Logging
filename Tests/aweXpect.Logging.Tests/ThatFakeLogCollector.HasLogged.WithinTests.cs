@@ -34,6 +34,21 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
+			public async Task CheckEvery_ShouldKeepTheFiltersAndQuantifiersAvailable()
+			{
+				FakeLogCollector subject = new();
+				LogWarning(new FakeLogger(subject), "Retry 1", null);
+
+				async Task Act()
+					=> await That(subject).HasLogged(LogLevel.Warning)
+						.Within(TimeSpan.FromMilliseconds(100)).CheckEvery(TimeSpan.FromMilliseconds(20))
+						.WithMessage("Retry *").AsWildcard()
+						.Once();
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
 			public async Task CheckEvery_ShouldReadTheRecordsInTheInterval()
 			{
 				FakeLogCollector subject = new();
@@ -61,34 +76,6 @@ public sealed partial class ThatFakeLogCollector
 
 				await That(Act).Throws<ArgumentOutOfRangeException>()
 					.WithParamName("interval");
-			}
-
-			[Fact]
-			public async Task CheckEvery_WhenSpecifiedTwice_ShouldThrowInvalidOperationException()
-			{
-				FakeLogCollector subject = new();
-
-				async Task Act()
-					=> await That(subject).HasLogged(LogLevel.Warning)
-						.Within(TimeSpan.FromSeconds(1))
-						.CheckEvery(TimeSpan.FromMilliseconds(10))
-						.CheckEvery(TimeSpan.FromMilliseconds(20));
-
-				await That(Act).Throws<InvalidOperationException>()
-					.WithMessage("CheckEvery cannot be specified more than once.");
-			}
-
-			[Fact]
-			public async Task CheckEvery_WhenWithinIsMissing_ShouldThrowInvalidOperationException()
-			{
-				FakeLogCollector subject = new();
-
-				async Task Act()
-					=> await That(subject).HasLogged(LogLevel.Warning).CheckEvery(TimeSpan.FromMilliseconds(10));
-
-				await That(Act).Throws<InvalidOperationException>()
-					.WithMessage("CheckEvery requires a timeout, which must be specified with Within before.")
-					.Because("an interval without a timeout would be ignored");
 			}
 
 			[Fact]

@@ -158,6 +158,23 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	}
 
 	/// <summary>
+	///     Allows a <paramref name="timeout" /> until the expectation must be met, e.g. for the records of a background
+	///     service.
+	/// </summary>
+	/// <remarks>
+	///     The records are read repeatedly until their amount decides the outcome: an expectation that further records
+	///     can meet, e.g. <c>HasLogged</c>, succeeds as soon as it is met, while one that further records can violate,
+	///     e.g. <c>HasNotLogged</c> or <c>AtMost</c>, waits for the full timeout and fails as soon as it is violated.
+	///     How often the records are read can be specified on the result.
+	/// </remarks>
+	public HasLoggedWithinResult Within(TimeSpan timeout)
+	{
+		RepeatedCheckOptions.Within(timeout);
+		return new HasLoggedWithinResult(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions,
+			_steps);
+	}
+
+	/// <summary>
 	///     Only counts records whose message is equal to the <paramref name="expected" /> message.
 	/// </summary>
 	/// <remarks>

@@ -11,23 +11,18 @@ namespace aweXpect.Results;
 ///     Allows combining multiple expectations with <see cref="AndOrResult{TType,TThat,TSelf}.And" /> and
 ///     <see cref="AndOrResult{TType,TThat,TSelf}.Or" />.
 /// </summary>
-public sealed class HasLoggedInOrderResult
+public class HasLoggedInOrderResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasLoggedInOrderResult>
 {
 	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+	private readonly IThat<FakeLogCollector?> _returnValue;
 
 	internal HasLoggedInOrderResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		RepeatedCheckOptions repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
+		_returnValue = returnValue;
 		_repeatedCheckOptions = repeatedCheckOptions;
-	}
-
-	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.CheckEvery(TimeSpan)" />
-	public HasLoggedInOrderResult CheckEvery(TimeSpan interval)
-	{
-		_repeatedCheckOptions.CheckEveryAfterWithin(interval);
-		return this;
 	}
 
 	/// <summary>
@@ -35,11 +30,12 @@ public sealed class HasLoggedInOrderResult
 	///     of a background service.
 	/// </summary>
 	/// <remarks>
-	///     The records are read repeatedly until they were logged in order, as further records cannot undo that.
+	///     The records are read repeatedly until they were logged in order, as further records cannot undo that. How
+	///     often they are read can be specified on the result.
 	/// </remarks>
-	public HasLoggedInOrderResult Within(TimeSpan timeout)
+	public HasLoggedInOrderWithinResult Within(TimeSpan timeout)
 	{
 		_repeatedCheckOptions.Within(timeout);
-		return this;
+		return new HasLoggedInOrderWithinResult(ExpectationBuilder, _returnValue, _repeatedCheckOptions);
 	}
 }

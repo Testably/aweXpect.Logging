@@ -3,15 +3,21 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
 namespace aweXpect.Results
 {
-    public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
+    public class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
+    {
+        public aweXpect.Results.HasLoggedCountWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class HasLoggedCountWithinResult : aweXpect.Results.HasLoggedCountResult
     {
         public aweXpect.Results.HasLoggedCountResult CheckEvery(System.TimeSpan interval) { }
-        public aweXpect.Results.HasLoggedCountResult Within(System.TimeSpan timeout) { }
     }
-    public sealed class HasLoggedInOrderResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedInOrderResult>
+    public class HasLoggedInOrderResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedInOrderResult>
+    {
+        public aweXpect.Results.HasLoggedInOrderWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class HasLoggedInOrderWithinResult : aweXpect.Results.HasLoggedInOrderResult
     {
         public aweXpect.Results.HasLoggedInOrderResult CheckEvery(System.TimeSpan interval) { }
-        public aweXpect.Results.HasLoggedInOrderResult Within(System.TimeSpan timeout) { }
     }
     public sealed class HasLoggedLevelResult : aweXpect.Results.HasLoggedResult
     {
@@ -41,6 +47,11 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedCountResult Twice() { }
         public aweXpect.Results.HasLoggedMessageResult WithMessage(string expected) { }
         public aweXpect.Results.HasLoggedPropertyResult WithProperty(string name) { }
+        public aweXpect.Results.HasLoggedWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class HasLoggedWithinResult : aweXpect.Results.HasLoggedResult
+    {
+        public aweXpect.Results.HasLoggedResult CheckEvery(System.TimeSpan interval) { }
     }
     public sealed class HasNotLoggedLevelResult : aweXpect.Results.HasNotLoggedResult
     {
@@ -56,18 +67,21 @@ namespace aweXpect.Results
     {
         public aweXpect.Results.HasNotLoggedMessageResult WithMessage(string expected) { }
         public aweXpect.Results.HasNotLoggedPropertyResult WithProperty(string name) { }
+        public aweXpect.Results.HasNotLoggedWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class HasNotLoggedWithinResult : aweXpect.Results.HasNotLoggedResult
+    {
+        public aweXpect.Results.HasNotLoggedResult CheckEvery(System.TimeSpan interval) { }
     }
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
     {
-        public TSelf CheckEvery(System.TimeSpan interval) { }
         public TSelf WithCategory(string category) { }
         public TSelf WithCategory<TCategory>() { }
         public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>()
             where TException : System.Exception { }
         public TSelf WithMessageTemplate(string expected) { }
-        public TSelf Within(System.TimeSpan timeout) { }
     }
     public sealed class LogRecordStep
     {

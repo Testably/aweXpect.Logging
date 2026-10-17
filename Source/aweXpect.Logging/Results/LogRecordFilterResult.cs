@@ -36,39 +36,6 @@ public abstract class LogRecordFilterResult<TSelf>
 	private protected IThat<FakeLogCollector?> ReturnValue { get; }
 
 	/// <summary>
-	///     Sets the <paramref name="interval" /> in which the records are read until the timeout of
-	///     <see cref="Within(TimeSpan)" />, which must be specified before.
-	/// </summary>
-	/// <remarks>
-	///     Defaults to <c>Customize.aweXpect.Settings().DefaultCheckInterval</c>, i.e. 100 milliseconds, if not
-	///     specified.
-	/// </remarks>
-	/// <exception cref="ArgumentOutOfRangeException">The <paramref name="interval" /> is not positive.</exception>
-	/// <exception cref="InvalidOperationException">
-	///     No timeout is specified with <see cref="Within(TimeSpan)" /> yet, or an interval is already specified.
-	/// </exception>
-	public TSelf CheckEvery(TimeSpan interval)
-	{
-		RepeatedCheckOptions.CheckEveryAfterWithin(interval);
-		return (TSelf)this;
-	}
-
-	/// <summary>
-	///     Allows a <paramref name="timeout" /> until the expectation must be met, e.g. for the records of a background
-	///     service.
-	/// </summary>
-	/// <remarks>
-	///     The records are read repeatedly until their amount decides the outcome: an expectation that further records
-	///     can meet, e.g. <c>HasLogged</c>, succeeds as soon as it is met, while one that further records can violate,
-	///     e.g. <c>HasNotLogged</c> or <c>AtMost</c>, waits for the full timeout and fails as soon as it is violated.
-	/// </remarks>
-	public TSelf Within(TimeSpan timeout)
-	{
-		RepeatedCheckOptions.Within(timeout);
-		return (TSelf)this;
-	}
-
-	/// <summary>
 	///     Only considers records whose category is equal to the <paramref name="category" />.
 	/// </summary>
 	/// <remarks>
