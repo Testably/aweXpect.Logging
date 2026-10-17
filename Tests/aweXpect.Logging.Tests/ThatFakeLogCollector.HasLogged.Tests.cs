@@ -8,10 +8,40 @@ namespace aweXpect.Logging.Tests;
 
 public sealed partial class ThatFakeLogCollector
 {
-	public sealed class HasLogged
+	public sealed partial class HasLogged
 	{
 		public sealed class Tests
 		{
+			[Fact]
+			public async Task WhenAnyLevelIsExpected_AndNothingWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+
+				async Task Act()
+					=> await That(subject).HasLogged();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record at least once,
+					             but it did not log any record
+					             """);
+			}
+
+			[Theory]
+			[InlineData(LogLevel.Trace)]
+			[InlineData(LogLevel.Critical)]
+			public async Task WhenAnyLevelIsExpected_AndRecordWasLogged_ShouldSucceed(LogLevel level)
+			{
+				FakeLogCollector subject = new();
+				new FakeLogger(subject).Log(level, "Retry limit reached");
+
+				async Task Act()
+					=> await That(subject).HasLogged();
+
+				await That(Act).DoesNotThrow();
+			}
+
 			[Fact]
 			public async Task WhenCollectorIsNull_ShouldFail()
 			{
@@ -41,7 +71,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage("""
 					             Expected that subject
 					             has logged a record with level Information at least once and has logged a record with level Warning at least once,
-					             but it only logged records with other levels
+					             but it did not log any such record
 
 					             Records:
 					             [
@@ -86,7 +116,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage("""
 					             Expected that subject
 					             has logged a record with level Warning at least once,
-					             but it only logged records with other levels
+					             but it did not log any such record
 
 					             Records:
 					             [
@@ -118,7 +148,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage($"""
 					              Expected that subject
 					              has logged a record with level Warning at least once,
-					              but it only logged records with other levels
+					              but it did not log any such record
 
 					              Records:
 					              [
@@ -158,7 +188,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage("""
 					             Expected that subject
 					             has logged a record with level Warning at least once,
-					             but it only logged records with other levels
+					             but it did not log any such record
 
 					             Records:
 					             [

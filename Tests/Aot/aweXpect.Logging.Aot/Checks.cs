@@ -6,7 +6,7 @@ using static aweXpect.Expect;
 
 namespace aweXpect.Logging.Aot;
 
-internal static class Checks
+internal static partial class Checks
 {
 	public static readonly Check[] All =
 	[
@@ -24,14 +24,26 @@ internal static class Checks
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
 					.HasLogged(LogLevel.Warning).Twice(),
 				"has logged a record with level Warning exactly twice", "but it logged 1 such record")),
+		new("a collector with a record matching the message pattern passes",
+			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit 3 reached"))
+				.HasLogged().WithMessage("Retry limit * reached").AsWildcard())),
+		new("a collector without a record matching the message regex fails",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasLogged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex(),
+				"has logged a record with level Warning and message matching regex \"^Retry [0-9]+$\"",
+				"but it did not log any such record")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
 	{
 		FakeLogCollector collector = new();
-		new FakeLogger(collector).Log(level, message);
+		FakeLogger logger = new(collector);
+		LogMessage(logger, level, message);
 		return collector;
 	}
+
+	[LoggerMessage(Message = "{Message}")]
+	private static partial void LogMessage(ILogger logger, LogLevel level, string message);
 
 	private static async Task<string?> ShouldFail(Func<Task> act, params string[] parts)
 	{
