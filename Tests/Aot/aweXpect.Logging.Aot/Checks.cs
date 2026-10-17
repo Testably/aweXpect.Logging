@@ -6,7 +6,7 @@ using static aweXpect.Expect;
 
 namespace aweXpect.Logging.Aot;
 
-internal static class Checks
+internal static partial class Checks
 {
 	public static readonly Check[] All =
 	[
@@ -37,9 +37,12 @@ internal static class Checks
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
 	{
 		FakeLogCollector collector = new();
-		new FakeLogger(collector).Log(level, "{Message}", message);
+		LogMessage(new FakeLogger(collector), level, message);
 		return collector;
 	}
+
+	[LoggerMessage(Message = "{Message}")]
+	private static partial void LogMessage(ILogger logger, LogLevel level, string message);
 
 	private static async Task<string?> ShouldFail(Func<Task> act, params string[] parts)
 	{

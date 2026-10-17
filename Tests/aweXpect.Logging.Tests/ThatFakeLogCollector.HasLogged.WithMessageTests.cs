@@ -7,7 +7,7 @@ public sealed partial class ThatFakeLogCollector
 {
 	public sealed partial class HasLogged
 	{
-		public sealed class WithMessageTests
+		public sealed partial class WithMessageTests
 		{
 			[Fact]
 			public async Task AsPrefix_WhenMessageStartsWithExpected_ShouldSucceed()
@@ -241,9 +241,12 @@ public sealed partial class ThatFakeLogCollector
 			private static FakeLogCollector WithRecord(LogLevel level, string message)
 			{
 				FakeLogCollector collector = new();
-				new FakeLogger(collector).Log(level, "{Message}", message);
+				LogMessage(new FakeLogger(collector), level, message);
 				return collector;
 			}
+
+			[LoggerMessage(Message = "{Message}")]
+			private static partial void LogMessage(ILogger logger, LogLevel level, string message);
 		}
 	}
 }
