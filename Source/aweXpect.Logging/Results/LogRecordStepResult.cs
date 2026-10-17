@@ -1,0 +1,63 @@
+using System;
+using aweXpect.Options;
+
+namespace aweXpect.Results;
+
+/// <summary>
+///     A step of <see cref="HasLoggedResult.Then(Func{LogRecordStep, LogRecordStepResult}[])" />, which allows
+///     narrowing down the record that is expected for it.
+/// </summary>
+/// <remarks>
+///     It offers the filters of a <see cref="HasLoggedResult" />, but neither quantifiers nor a timeout, as these apply
+///     to the whole order.
+/// </remarks>
+public class LogRecordStepResult
+{
+	internal LogRecordStepResult(LogRecordFilter filter)
+	{
+		Filter = filter;
+	}
+
+	internal LogRecordFilter Filter { get; }
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithCategory(string)" />
+	public LogRecordStepResult WithCategory(string category)
+	{
+		Filter.AddCategory(category);
+		return this;
+	}
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithCategory{TCategory}()" />
+	public LogRecordStepResult WithCategory<TCategory>()
+		=> WithCategory(LogRecordFilter.GetCategoryName(typeof(TCategory)));
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithEventId(int)" />
+	public LogRecordStepResult WithEventId(int eventId)
+	{
+		Filter.AddEventId(eventId);
+		return this;
+	}
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithException{TException}()" />
+	public LogRecordStepResult WithException<TException>()
+		where TException : Exception
+	{
+		Filter.AddException(typeof(TException));
+		return this;
+	}
+
+	/// <inheritdoc cref="HasLoggedResult.WithMessage(string)" />
+	public LogRecordStepMessageResult WithMessage(string expected)
+		=> new(Filter, Filter.AddMessage(expected));
+
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithMessageTemplate(string)" />
+	public LogRecordStepResult WithMessageTemplate(string expected)
+	{
+		Filter.AddMessageTemplate(expected);
+		return this;
+	}
+
+	/// <inheritdoc cref="HasLoggedResult.WithProperty(string)" />
+	public LogRecordStepPropertyResult WithProperty(string name)
+		=> new(Filter, Filter.AddProperty(name));
+}

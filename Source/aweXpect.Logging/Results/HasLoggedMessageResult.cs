@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using aweXpect.Core;
 using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
@@ -18,8 +19,8 @@ public sealed class HasLoggedMessageResult
 
 	internal HasLoggedMessageResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
-		StringEqualityOptions options)
-		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions)
+		List<LogRecordFilter> steps, StringEqualityOptions options)
+		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{
 		_options = options;
 	}

@@ -264,6 +264,36 @@ Records:
 ]
 ```
 
+## Order
+
+With `Then`, you can verify that further records were logged after a matching record, in the given order:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Information).WithMessage("Starting")
+    .Then(
+        r => r.HasLogged(LogLevel.Warning).WithMessage("Retry *").AsWildcard(),
+        r => r.HasLogged(LogLevel.Error).OrHigher().WithException<TimeoutException>());
+```
+
+Each step takes the same filters as `HasLogged` and must match a record that was logged after the one of the previous
+step, so a record cannot match two steps, while other records may be logged in between. As the order implies that each
+record was logged at least once, it cannot be combined with a quantifier. If a record was logged too early or not at
+all, the expectation would fail with:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Information and message equal to "Starting", then
+a record with level Warning and message matching "Retry *", then
+a record with level Error or higher and exception of type TimeoutException in order,
+but it logged a record with level Warning and message matching "Retry *" too early
+
+Records:
+[
+  [Warning] "Retry 1",
+  [Information] "Starting"
+]
+```
+
 ## Timeout
 
 Records of a background service, e.g. a hosted service or a timer, can be logged after the expectation is evaluated.

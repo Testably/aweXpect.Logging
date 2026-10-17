@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using aweXpect.Core;
 using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
@@ -18,15 +20,18 @@ namespace aweXpect.Results;
 public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 {
 	private readonly Quantifier _quantifier;
+	private readonly List<LogRecordFilter> _steps;
 
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions)
+		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		List<LogRecordFilter> steps)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 		_quantifier = quantifier;
+		_steps = steps;
 	}
 
 	/// <summary>
@@ -127,6 +132,32 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 		=> Exactly(2);
 
 	/// <summary>
+	///     Verifies that the records of the <paramref name="steps" /> were logged after a matching record, in the given
+	///     order.
+	/// </summary>
+	/// <remarks>
+	///     Each step must match a record that was logged after the one of the previous step, so a record cannot match
+	///     two steps, while other records may be logged in between. A timeout for all records can be specified on the
+	///     result.
+	/// </remarks>
+	/// <exception cref="ArgumentNullException">The <paramref name="steps" /> are <see langword="null" />.</exception>
+	public HasLoggedInOrderResult Then(params Func<LogRecordStep, LogRecordStepResult>[] steps)
+	{
+		if (steps is null)
+		{
+			throw new ArgumentNullException(nameof(steps));
+		}
+
+		LogRecordStep step = new();
+		foreach (Func<LogRecordStep, LogRecordStepResult> selectStep in steps)
+		{
+			_steps.Add(selectStep(step).Filter);
+		}
+
+		return new HasLoggedInOrderResult(ExpectationBuilder, ReturnValue, RepeatedCheckOptions);
+	}
+
+	/// <summary>
 	///     Only counts records whose message is equal to the <paramref name="expected" /> message.
 	/// </summary>
 	/// <remarks>
@@ -134,7 +165,8 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	///     <c>IgnoringCase()</c>.
 	/// </remarks>
 	public HasLoggedMessageResult WithMessage(string expected)
-		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, Filter.AddMessage(expected));
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, _steps,
+			Filter.AddMessage(expected));
 
 	/// <summary>
 	///     Only counts records with a property <paramref name="name" />, e.g. <c>Attempt</c> for the message template
@@ -144,7 +176,8 @@ public class HasLoggedResult : LogRecordFilterResult<HasLoggedResult>
 	///     Its value can be verified on the result with <see cref="HasLoggedPropertyResult.WithValue(string)" />.
 	/// </remarks>
 	public HasLoggedPropertyResult WithProperty(string name)
-		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, Filter.AddProperty(name));
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, _steps,
+			Filter.AddProperty(name));
 
 	private HasLoggedCountResult Quantified()
 		=> new(ExpectationBuilder, ReturnValue, RepeatedCheckOptions);

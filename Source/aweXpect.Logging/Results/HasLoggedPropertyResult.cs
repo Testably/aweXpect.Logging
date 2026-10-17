@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using aweXpect.Core;
 using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
@@ -12,13 +13,15 @@ public sealed class HasLoggedPropertyResult : HasLoggedResult
 {
 	private readonly LogRecordFilter.PropertyCondition _property;
 	private readonly Quantifier _quantifier;
+	private readonly List<LogRecordFilter> _steps;
 
 	internal HasLoggedPropertyResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
-		LogRecordFilter.PropertyCondition property)
-		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions)
+		List<LogRecordFilter> steps, LogRecordFilter.PropertyCondition property)
+		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{
 		_quantifier = quantifier;
+		_steps = steps;
 		_property = property;
 	}
 
@@ -33,6 +36,6 @@ public sealed class HasLoggedPropertyResult : HasLoggedResult
 	/// </remarks>
 	/// <exception cref="System.InvalidOperationException">The value of the property is already specified.</exception>
 	public HasLoggedPropertyValueResult WithValue(string? expected)
-		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions,
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, _steps,
 			_property.WithValue(expected));
 }
