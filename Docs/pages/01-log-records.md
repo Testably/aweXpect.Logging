@@ -311,6 +311,14 @@ The records are read until their amount decides the outcome, so the expectation 
 - An expectation that further records can violate, e.g. `HasNotLogged`, `Never()`, `AtMost(…)` or `Once()`, waits for
   the full timeout and fails as soon as it is violated.
 
+The records are read every 100 milliseconds by default (`Customize.aweXpect.Settings().DefaultCheckInterval`). You can
+change the interval with `CheckEvery`, which requires `Within` before:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Warning)
+    .Within(TimeSpan.FromSeconds(5)).CheckEvery(TimeSpan.FromMilliseconds(10));
+```
+
 The failure message then lists the records that were logged until the expectation failed:
 
 ```text title="Failure message"
