@@ -116,6 +116,31 @@ Records:
 ]
 ```
 
+As for quantified collection expectations in aweXpect, the failure message additionally lists the records that explain
+the failure, when the quantifier fails in only one direction:
+
+- with only an upper bound, e.g. `AtMost(…)` or `Never()`, the matching records:
+  ```text title="Failure message"
+  Expected that collector
+  has not logged a record with level Warning,
+  but it logged 1 such record
+
+  Matching records:
+  [
+    [Warning] "Retry 1"
+  ]
+
+  Records:
+  [
+    [Information] "Starting",
+    [Warning] "Retry 1"
+  ]
+  ```
+- with only a lower bound above one, e.g. `AtLeast(2.Times())`, the not matching records.
+
+When the expectation is negated, this depends on its negation instead, e.g. `AtLeast(2.Times())` lists the matching
+records when negated.
+
 Only one quantifier can be specified for each `HasLogged`, after the message:
 
 ```csharp

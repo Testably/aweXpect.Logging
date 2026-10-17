@@ -55,6 +55,11 @@ public sealed partial class ThatFakeLogCollector
 					             has not logged a record with level Warning or higher,
 					             but it logged 1 such record
 
+					             Matching records:
+					             [
+					               [Error] "Retry limit reached"
+					             ]
+
 					             Records:
 					             [
 					               [Error] "Retry limit reached"

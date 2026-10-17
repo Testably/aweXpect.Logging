@@ -243,6 +243,11 @@ public sealed partial class ThatFakeLogCollector
 					             has logged a record with level Warning exactly once and has not logged a record with level Information,
 					             but it logged 1 such record
 
+					             Matching records:
+					             [
+					               [Information] "Starting"
+					             ]
+
 					             Records:
 					             [
 					               [Information] "Starting",
@@ -268,7 +273,7 @@ public sealed partial class ThatFakeLogCollector
 					              {expectation},
 					              but it logged {failingCount} such record{(failingCount == 1 ? "" : "s")}
 
-					              Records:
+					              *Records:
 					              *
 					              """).AsWildcard();
 			}
@@ -397,6 +402,12 @@ public sealed partial class ThatFakeLogCollector
 					             has logged a record with level Warning fewer than twice,
 					             but it logged 2 such records
 
+					             Matching records:
+					             [
+					               [Warning] "Retry 1",
+					               [Warning] "Retry 2"
+					             ]
+
 					             Records:
 					             [
 					               [Warning] "Retry 1",
@@ -471,6 +482,12 @@ public sealed partial class ThatFakeLogCollector
 					             Expected that subject
 					             has not logged a record with level Warning,
 					             but it logged 2 such records
+
+					             Matching records:
+					             [
+					               [Warning] "Retry 1",
+					               [Warning] "Retry 2"
+					             ]
 
 					             Records:
 					             [

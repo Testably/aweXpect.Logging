@@ -57,8 +57,9 @@ public static partial class ThatFakeLogCollector
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
 			IAsyncConstraint<FakeLogCollector?>
 	{
+		private List<FakeLogRecord> _matchingRecords = [];
+		private List<FakeLogRecord> _notMatchingRecords = [];
 		private IReadOnlyList<FakeLogRecord> _records = [];
-		private int _matchingCount;
 
 		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, CancellationToken cancellationToken)
 		{
@@ -66,27 +67,51 @@ public static partial class ThatFakeLogCollector
 			Actual = actual;
 			// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
 			_records = actual?.GetSnapshot() ?? [];
-			_matchingCount = 0;
+			_matchingRecords = [];
+			_notMatchingRecords = [];
 			foreach (FakeLogRecord record in _records)
 			{
-				if (await filter.Matches(record))
-				{
-					_matchingCount++;
-				}
+				(await filter.Matches(record) ? _matchingRecords : _notMatchingRecords).Add(record);
 			}
 
-			Outcome = quantifier.Check(_matchingCount, true) == true ? Outcome.Success : Outcome.Failure;
+			Outcome = quantifier.Check(_matchingRecords.Count, true) == true ? Outcome.Success : Outcome.Failure;
 			return this;
 		}
 
+		/// <remarks>
+		///     As for the quantified collection expectations in aweXpect, the matching records are listed when the
+		///     quantifier only has an upper bound, e.g. <c>AtMost</c> or <c>Never</c>, and the not matching records when
+		///     it only has a lower bound above one, e.g. <c>AtLeast(2.Times())</c>, because these are the records that
+		///     explain the failure. A negated expectation lists them for its complement.
+		/// </remarks>
 		public override void AppendContexts(ResultContextCollector contexts)
 		{
-			if (_records.Count > 0)
+			if (IsMet(0) && !IsMet(int.MaxValue))
 			{
-				IReadOnlyList<FakeLogRecord> records = _records;
-				contexts.Add(new ResultContext.SyncCallback("Records",
+				AddRecords(contexts, "Matching records", _matchingRecords, int.MaxValue);
+			}
+			else if (!IsMet(0) && !IsMet(1) && IsMet(int.MaxValue))
+			{
+				AddRecords(contexts, "Not matching records", _notMatchingRecords, int.MaxValue);
+			}
+
+			AddRecords(contexts, "Records", _records);
+		}
+
+		/// <summary>
+		///     Whether the <paramref name="amount" /> of matching records meets the expectation, or its negation.
+		/// </summary>
+		private bool IsMet(int amount)
+			=> quantifier.Check(amount, true, IsNegated) ?? IsNegated;
+
+		private static void AddRecords(ResultContextCollector contexts, string title,
+			IReadOnlyList<FakeLogRecord> records, int priority = 0)
+		{
+			if (records.Count > 0)
+			{
+				contexts.Add(new ResultContext.SyncCallback(title,
 					() => Formatter.Format(records.Select(record => new FormattedRecord(record)).ToArray(),
-						FormattingOptions.MultipleLines)));
+						FormattingOptions.MultipleLines), priority));
 			}
 		}
 
@@ -128,14 +153,14 @@ public static partial class ThatFakeLogCollector
 			{
 				stringBuilder.Append(" did not log any record");
 			}
-			else if (_matchingCount == 0)
+			else if (_matchingRecords.Count == 0)
 			{
 				stringBuilder.Append(" did not log any such record");
 			}
 			else
 			{
-				stringBuilder.Append(" logged ").Append(_matchingCount)
-					.Append(_matchingCount == 1 ? " such record" : " such records");
+				stringBuilder.Append(" logged ").Append(_matchingRecords.Count)
+					.Append(_matchingRecords.Count == 1 ? " such record" : " such records");
 			}
 		}
 	}
