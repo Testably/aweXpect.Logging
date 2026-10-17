@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Core.Constraints;
+using aweXpect.Core.EvaluationContext;
 using aweXpect.Core.Extending;
 using aweXpect.Formatting;
 using aweXpect.Options;
@@ -29,7 +30,9 @@ public static partial class ThatFakeLogCollector
 	{
 		LogRecordFilter filter = new(null);
 		Quantifier quantifier = new();
-		return new HasLoggedResult(AddHasLoggedConstraint(source, filter, quantifier), source, filter, quantifier);
+		RepeatedCheckOptions repeatedCheckOptions = new();
+		return new HasLoggedResult(AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions), source,
+			filter, quantifier, repeatedCheckOptions);
 	}
 
 	/// <summary>
@@ -40,42 +43,74 @@ public static partial class ThatFakeLogCollector
 	{
 		LogRecordFilter filter = new(level);
 		Quantifier quantifier = new();
-		return new HasLoggedLevelResult(AddHasLoggedConstraint(source, filter, quantifier), source, filter,
-			quantifier);
+		RepeatedCheckOptions repeatedCheckOptions = new();
+		return new HasLoggedLevelResult(AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions),
+			source, filter, quantifier, repeatedCheckOptions);
 	}
 
 	private static ExpectationBuilder AddHasLoggedConstraint(IThat<FakeLogCollector?> source, LogRecordFilter filter,
-		Quantifier quantifier)
-		=> source.Get().ExpectationBuilder.AddConstraint((Filter: filter, Quantifier: quantifier),
-			static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier));
+		Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions)
+		=> source.Get().ExpectationBuilder.AddConstraint(
+			(Filter: filter, Quantifier: quantifier, RepeatedCheckOptions: repeatedCheckOptions),
+			static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier,
+				state.RepeatedCheckOptions));
 
 	private sealed class HasLoggedConstraint(
 		string it,
 		ExpectationGrammars grammars,
 		LogRecordFilter filter,
-		Quantifier quantifier)
+		Quantifier quantifier,
+		RepeatedCheckOptions repeatedCheckOptions)
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
-			IAsyncConstraint<FakeLogCollector?>
+			IAsyncContextConstraint<FakeLogCollector?>
 	{
 		private List<FakeLogRecord> _matchingRecords = [];
 		private List<FakeLogRecord> _notMatchingRecords = [];
 		private IReadOnlyList<FakeLogRecord> _records = [];
 
-		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, CancellationToken cancellationToken)
+		/// <remarks>
+		///     With a timeout, the records are read repeatedly until their amount decides the outcome, as for recorded
+		///     events: a lower bound stops waiting as soon as it is met, an upper bound as soon as it is exceeded.
+		/// </remarks>
+		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, IEvaluationContext context,
+			CancellationToken cancellationToken)
 		{
 			filter.ValidateExpected();
 			Actual = actual;
-			// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
-			_records = actual?.GetSnapshot() ?? [];
-			_matchingRecords = [];
-			_notMatchingRecords = [];
-			foreach (FakeLogRecord record in _records)
+			if (actual is null)
 			{
-				(await filter.Matches(record) ? _matchingRecords : _notMatchingRecords).Add(record);
+				await Read([]);
+				return this;
+			}
+
+			Outcome repeatedOutcome = await repeatedCheckOptions.CheckRepeatedly(async _ =>
+			{
+				// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
+				await Read(actual.GetSnapshot());
+				return quantifier.Check(_matchingRecords.Count, false) is not null;
+			}, context);
+			if (repeatedOutcome == Outcome.Undecided)
+			{
+				Outcome = Outcome.Undecided;
+				return this;
 			}
 
 			Outcome = quantifier.Check(_matchingRecords.Count, true) == true ? Outcome.Success : Outcome.Failure;
 			return this;
+		}
+
+		private async ValueTask Read(IReadOnlyList<FakeLogRecord> records)
+		{
+			List<FakeLogRecord> matchingRecords = [];
+			List<FakeLogRecord> notMatchingRecords = [];
+			foreach (FakeLogRecord record in records)
+			{
+				(await filter.Matches(record) ? matchingRecords : notMatchingRecords).Add(record);
+			}
+
+			_records = records;
+			_matchingRecords = matchingRecords;
+			_notMatchingRecords = notMatchingRecords;
 		}
 
 		/// <remarks>
@@ -144,6 +179,8 @@ public static partial class ThatFakeLogCollector
 			{
 				stringBuilder.Append(' ').Append(hasNot ? times.Substring(not.Length) : times);
 			}
+
+			stringBuilder.Append(repeatedCheckOptions);
 		}
 
 		private void AppendResult(StringBuilder stringBuilder)

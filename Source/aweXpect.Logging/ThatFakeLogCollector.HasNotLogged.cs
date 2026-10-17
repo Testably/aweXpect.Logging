@@ -15,7 +15,10 @@ public static partial class ThatFakeLogCollector
 	public static HasNotLoggedResult HasNotLogged(this IThat<FakeLogCollector?> source)
 	{
 		LogRecordFilter filter = new(null);
-		return new HasNotLoggedResult(AddHasLoggedConstraint(source, filter, Quantifier.Never()), source, filter);
+		RepeatedCheckOptions repeatedCheckOptions = new();
+		return new HasNotLoggedResult(
+			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions), source, filter,
+			repeatedCheckOptions);
 	}
 
 	/// <summary>
@@ -25,6 +28,9 @@ public static partial class ThatFakeLogCollector
 	public static HasNotLoggedLevelResult HasNotLogged(this IThat<FakeLogCollector?> source, LogLevel level)
 	{
 		LogRecordFilter filter = new(level);
-		return new HasNotLoggedLevelResult(AddHasLoggedConstraint(source, filter, Quantifier.Never()), source, filter);
+		RepeatedCheckOptions repeatedCheckOptions = new();
+		return new HasNotLoggedLevelResult(
+			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions), source, filter,
+			repeatedCheckOptions);
 	}
 }

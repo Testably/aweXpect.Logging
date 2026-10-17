@@ -4,7 +4,10 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
 namespace aweXpect.Results
 {
-    public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult> { }
+    public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
+    {
+        public aweXpect.Results.HasLoggedCountResult Within(System.TimeSpan timeout) { }
+    }
     public sealed class HasLoggedLevelResult : aweXpect.Results.HasLoggedResult
     {
         public aweXpect.Results.HasLoggedResult OrHigher() { }
@@ -41,6 +44,7 @@ namespace aweXpect.Results
     {
         public TSelf WithException<TException>()
             where TException : System.Exception { }
+        public TSelf Within(System.TimeSpan timeout) { }
     }
 }
 namespace aweXpect

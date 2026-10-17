@@ -12,8 +12,8 @@ namespace aweXpect.Results;
 public sealed class HasNotLoggedLevelResult : HasNotLoggedResult
 {
 	internal HasNotLoggedLevelResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter)
-		: base(expectationBuilder, returnValue, filter)
+		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 	}
 

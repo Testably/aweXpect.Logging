@@ -17,8 +17,9 @@ public sealed class HasLoggedMessageResult
 	private readonly StringEqualityOptions _options;
 
 	internal HasLoggedMessageResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, StringEqualityOptions options)
-		: base(expectationBuilder, returnValue, filter, quantifier)
+		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		StringEqualityOptions options)
+		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions)
 	{
 		_options = options;
 	}

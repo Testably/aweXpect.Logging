@@ -20,8 +20,8 @@ public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasNotLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter)
-		: base(expectationBuilder, returnValue, filter)
+		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 	}
 
@@ -33,5 +33,5 @@ public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 	///     <c>IgnoringCase()</c>.
 	/// </remarks>
 	public HasNotLoggedMessageResult WithMessage(string expected)
-		=> new(ExpectationBuilder, ReturnValue, Filter, Filter.AddMessage(expected));
+		=> new(ExpectationBuilder, ReturnValue, Filter, RepeatedCheckOptions, Filter.AddMessage(expected));
 }

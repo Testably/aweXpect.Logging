@@ -5,7 +5,7 @@ namespace aweXpect.Logging.Tests;
 
 public sealed partial class ThatFakeLogCollector
 {
-	public sealed class HasNotLogged
+	public sealed partial class HasNotLogged
 	{
 		public sealed class Tests
 		{
