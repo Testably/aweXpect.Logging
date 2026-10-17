@@ -46,6 +46,12 @@ but it did not log any record
 The records are read once, when the expectation is evaluated, so a record that is logged afterwards is neither
 considered nor listed.
 
+With `OrHigher()`, a record with a more severe level also counts, e.g. to verify that no warning or error was logged:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Warning).OrHigher().Never();
+```
+
 Without a log level, a record of any level is enough:
 
 ```csharp
