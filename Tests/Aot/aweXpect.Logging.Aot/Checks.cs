@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -46,6 +47,20 @@ internal static partial class Checks
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
 					.HasNotLogged().WithMessage("Retry *").AsWildcard(),
 				"has not logged a record with message matching \"Retry *\"", "but it logged 1 such record")),
+		new("a collector with a record with a derived exception passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger logger = new(collector);
+				FileNotFoundException exception = new();
+				logger.LogError(exception, "Configuration missing");
+				await That(collector).HasLogged(LogLevel.Error).WithException<IOException>();
+			})),
+		new("a collector without a record with the exception fails",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Error, "Retry limit reached"))
+					.HasLogged(LogLevel.Error).WithException<TimeoutException>(),
+				"has logged a record with level Error and exception of type TimeoutException",
+				"  [Error] \"Retry limit reached\"")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)

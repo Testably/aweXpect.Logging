@@ -86,6 +86,30 @@ Records:
 
 If `WithMessage` is specified more than once, the message of a record must match all of them.
 
+## Exception
+
+You can additionally verify the type of the exception of the record, which includes derived types:
+
+```csharp
+logger.LogError(new FileNotFoundException(), "Configuration missing");
+
+await Expect.That(collector).HasLogged(LogLevel.Error).WithException<IOException>();
+```
+
+The failure message lists the type of the exception after the message of a record, e.g. if the exception had another
+type:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Error and exception of type IOException at least once,
+but it did not log any such record
+
+Records:
+[
+  [Error] "Configuration missing" (InvalidOperationException)
+]
+```
+
 ## Quantifiers
 
 By default, a single matching record is enough. You can specify how many matching records are expected instead:

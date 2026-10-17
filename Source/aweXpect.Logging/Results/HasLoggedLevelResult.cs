@@ -10,13 +10,10 @@ namespace aweXpect.Results;
 /// </summary>
 public sealed class HasLoggedLevelResult : HasLoggedResult
 {
-	private readonly LogRecordFilter _filter;
-
 	internal HasLoggedLevelResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		LogRecordFilter filter, Quantifier quantifier)
 		: base(expectationBuilder, returnValue, filter, quantifier)
 	{
-		_filter = filter;
 	}
 
 	/// <summary>
@@ -24,7 +21,7 @@ public sealed class HasLoggedLevelResult : HasLoggedResult
 	/// </summary>
 	public HasLoggedResult OrHigher()
 	{
-		_filter.OrHigher();
+		Filter.OrHigher();
 		return this;
 	}
 }

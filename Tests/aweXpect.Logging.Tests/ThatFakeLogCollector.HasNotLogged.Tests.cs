@@ -178,6 +178,49 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
+			public async Task WithException_WhenExceptionIsOfOtherType_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				new FakeLogger(subject).LogError(new InvalidOperationException(), "Retry limit reached");
+
+				async Task Act()
+					=> await That(subject).HasNotLogged(LogLevel.Error).WithException<TimeoutException>();
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task WithException_WhenExceptionIsOfType_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				TimeoutException exception = new();
+				logger.LogError(new InvalidOperationException(), "Retry 1");
+				logger.LogCritical(exception, "Retry 2");
+
+				async Task Act()
+					=> await That(subject).HasNotLogged(LogLevel.Error).OrHigher().WithException<TimeoutException>();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with level Error or higher and exception of type TimeoutException,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Critical] "Retry 2" (TimeoutException)
+					             ]
+
+					             Records:
+					             [
+					               [Error] "Retry 1" (InvalidOperationException),
+					               [Critical] "Retry 2" (TimeoutException)
+					             ]
+					             """);
+			}
+
+			[Fact]
 			public async Task WithMessage_WhenMessageDiffers_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();

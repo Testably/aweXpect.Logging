@@ -14,21 +14,15 @@ namespace aweXpect.Results;
 ///     It offers no quantifiers, as any amount but zero contradicts the expectation; a limited amount of records is
 ///     verified with <see cref="HasLoggedResult.AtMost(Times)" /> instead.
 /// </remarks>
-public class HasNotLoggedResult
-	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasNotLoggedResult>
+public class HasNotLoggedResult : LogRecordFilterResult<HasNotLoggedResult>
 {
-	private readonly LogRecordFilter _filter;
-	private readonly IThat<FakeLogCollector?> _returnValue;
-
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasNotLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
 		LogRecordFilter filter)
-		: base(expectationBuilder, returnValue)
+		: base(expectationBuilder, returnValue, filter)
 	{
-		_returnValue = returnValue;
-		_filter = filter;
 	}
 
 	/// <summary>
@@ -39,5 +33,5 @@ public class HasNotLoggedResult
 	///     <c>IgnoringCase()</c>.
 	/// </remarks>
 	public HasNotLoggedMessageResult WithMessage(string expected)
-		=> new(ExpectationBuilder, _returnValue, _filter, _filter.AddMessage(expected));
+		=> new(ExpectationBuilder, ReturnValue, Filter, Filter.AddMessage(expected));
 }

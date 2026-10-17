@@ -166,7 +166,7 @@ public static partial class ThatFakeLogCollector
 	}
 
 	/// <summary>
-	///     Lists a record by its level and message.
+	///     Lists a record by its level, its message and the type of its exception, if any.
 	/// </summary>
 	/// <remarks>
 	///     A <see cref="FakeLogRecord" /> itself would be listed with all its members, which hides the level and the
@@ -175,6 +175,8 @@ public static partial class ThatFakeLogCollector
 	private sealed class FormattedRecord(FakeLogRecord record)
 	{
 		public override string ToString()
-			=> $"[{Formatter.Format(record.Level)}] {Formatter.Format(record.Message)}";
+			=> record.Exception is null
+				? $"[{Formatter.Format(record.Level)}] {Formatter.Format(record.Message)}"
+				: $"[{Formatter.Format(record.Level)}] {Formatter.Format(record.Message)} ({Formatter.Format(record.Exception.GetType())})";
 	}
 }
