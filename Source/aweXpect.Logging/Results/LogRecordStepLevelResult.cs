@@ -13,7 +13,7 @@ public sealed class LogRecordStepLevelResult : LogRecordStepResult
 	{
 	}
 
-	/// <inheritdoc cref="HasLoggedLevelResult.OrHigher()" />
+	/// <inheritdoc cref="LoggedLevelResult.OrHigher()" />
 	public LogRecordStepResult OrHigher()
 	{
 		Filter.OrHigher();

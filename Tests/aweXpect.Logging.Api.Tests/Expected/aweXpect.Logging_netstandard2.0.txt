@@ -2,79 +2,27 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
 namespace aweXpect.Results
 {
-    public sealed class HasLoggedCategoryResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
+    public sealed class DidNotLogCategoryResult : aweXpect.Results.DidNotLogResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public sealed class DidNotLogLevelResult : aweXpect.Results.DidNotLogResult
     {
-        public aweXpect.Results.HasLoggedCountWithinResult Within(System.TimeSpan timeout) { }
+        public aweXpect.Results.DidNotLogResult OrHigher() { }
     }
-    public sealed class HasLoggedCountWithinResult : aweXpect.Results.HasLoggedCountResult
+    public sealed class DidNotLogMessageResult : aweXpect.Results.DidNotLogResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public sealed class DidNotLogPropertyResult : aweXpect.Results.DidNotLogResult
     {
-        public aweXpect.Results.HasLoggedCountResult CheckEvery(System.TimeSpan interval) { }
+        public aweXpect.Results.DidNotLogPropertyValueResult WithValue(string? expected) { }
     }
-    public class HasLoggedInOrderResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedInOrderResult>
+    public sealed class DidNotLogPropertyValueResult : aweXpect.Results.DidNotLogResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public class DidNotLogResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.DidNotLogResult>
     {
-        public aweXpect.Results.HasLoggedInOrderWithinResult Within(System.TimeSpan timeout) { }
+        public aweXpect.Results.DidNotLogCategoryResult WithCategory(string expected) { }
+        public aweXpect.Results.DidNotLogMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.DidNotLogPropertyResult WithProperty(string name) { }
+        public aweXpect.Results.DidNotLogWithinResult Within(System.TimeSpan timeout) { }
     }
-    public sealed class HasLoggedInOrderWithinResult : aweXpect.Results.HasLoggedInOrderResult
+    public sealed class DidNotLogWithinResult : aweXpect.Results.DidNotLogResult
     {
-        public aweXpect.Results.HasLoggedInOrderResult CheckEvery(System.TimeSpan interval) { }
-    }
-    public sealed class HasLoggedLevelResult : aweXpect.Results.HasLoggedResult
-    {
-        public aweXpect.Results.HasLoggedResult OrHigher() { }
-    }
-    public sealed class HasLoggedMessageResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public sealed class HasLoggedPropertyResult : aweXpect.Results.HasLoggedResult
-    {
-        public aweXpect.Results.HasLoggedPropertyValueResult WithValue(string? expected) { }
-    }
-    public sealed class HasLoggedPropertyValueResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public class HasLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasLoggedResult>
-    {
-        public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> AtLeast() { }
-        public aweXpect.Results.HasLoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
-        public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> AtMost() { }
-        public aweXpect.Results.HasLoggedCountResult AtMost(aweXpect.Core.Times maximum) { }
-        public aweXpect.Results.BetweenResult<aweXpect.Results.HasLoggedCountResult> Between(int minimum) { }
-        public aweXpect.Results.HasLoggedCountResult Exactly(aweXpect.Core.Times expected) { }
-        public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> LessThan() { }
-        public aweXpect.Results.HasLoggedCountResult LessThan(aweXpect.Core.Times maximum) { }
-        public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> MoreThan() { }
-        public aweXpect.Results.HasLoggedCountResult MoreThan(aweXpect.Core.Times minimum) { }
-        public aweXpect.Results.HasLoggedCountResult Never() { }
-        public aweXpect.Results.HasLoggedCountResult Once() { }
-        public aweXpect.Results.HasLoggedInOrderResult Then(params System.Func<aweXpect.Results.LogRecordStep, aweXpect.Results.LogRecordStepResult>[] steps) { }
-        public aweXpect.Results.HasLoggedCountResult Twice() { }
-        public aweXpect.Results.HasLoggedCategoryResult WithCategory(string expected) { }
-        public aweXpect.Results.HasLoggedMessageResult WithMessage(string expected) { }
-        public aweXpect.Results.HasLoggedPropertyResult WithProperty(string name) { }
-        public aweXpect.Results.HasLoggedWithinResult Within(System.TimeSpan timeout) { }
-    }
-    public sealed class HasLoggedWithinResult : aweXpect.Results.HasLoggedResult
-    {
-        public aweXpect.Results.HasLoggedResult CheckEvery(System.TimeSpan interval) { }
-    }
-    public sealed class HasNotLoggedCategoryResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public sealed class HasNotLoggedLevelResult : aweXpect.Results.HasNotLoggedResult
-    {
-        public aweXpect.Results.HasNotLoggedResult OrHigher() { }
-    }
-    public sealed class HasNotLoggedMessageResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public sealed class HasNotLoggedPropertyResult : aweXpect.Results.HasNotLoggedResult
-    {
-        public aweXpect.Results.HasNotLoggedPropertyValueResult WithValue(string? expected) { }
-    }
-    public sealed class HasNotLoggedPropertyValueResult : aweXpect.Results.HasNotLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
-    public class HasNotLoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.HasNotLoggedResult>
-    {
-        public aweXpect.Results.HasNotLoggedCategoryResult WithCategory(string expected) { }
-        public aweXpect.Results.HasNotLoggedMessageResult WithMessage(string expected) { }
-        public aweXpect.Results.HasNotLoggedPropertyResult WithProperty(string name) { }
-        public aweXpect.Results.HasNotLoggedWithinResult Within(System.TimeSpan timeout) { }
-    }
-    public sealed class HasNotLoggedWithinResult : aweXpect.Results.HasNotLoggedResult
-    {
-        public aweXpect.Results.HasNotLoggedResult CheckEvery(System.TimeSpan interval) { }
+        public aweXpect.Results.DidNotLogResult CheckEvery(System.TimeSpan interval) { }
     }
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
@@ -87,8 +35,14 @@ namespace aweXpect.Results
     }
     public sealed class LogRecordStep
     {
-        public aweXpect.Results.LogRecordStepResult HasLogged() { }
-        public aweXpect.Results.LogRecordStepLevelResult HasLogged(Microsoft.Extensions.Logging.LogLevel level) { }
+        public aweXpect.Results.LogRecordStepResult Logged() { }
+        public aweXpect.Results.LogRecordStepLevelResult Logged(Microsoft.Extensions.Logging.LogLevel level) { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedCritical() { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedDebug() { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedError() { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedInformation() { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedTrace() { }
+        public aweXpect.Results.LogRecordStepLevelResult LoggedWarning() { }
     }
     public sealed class LogRecordStepCategoryResult : aweXpect.Results.LogRecordStepResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
     public sealed class LogRecordStepLevelResult : aweXpect.Results.LogRecordStepResult
@@ -112,29 +66,129 @@ namespace aweXpect.Results
         public aweXpect.Results.LogRecordStepResult WithMessageTemplate(string expected) { }
         public aweXpect.Results.LogRecordStepPropertyResult WithProperty(string name) { }
     }
+    public sealed class LoggedCategoryResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public class LoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.LoggedCountResult>
+    {
+        public aweXpect.Results.LoggedCountWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class LoggedCountWithinResult : aweXpect.Results.LoggedCountResult
+    {
+        public aweXpect.Results.LoggedCountResult CheckEvery(System.TimeSpan interval) { }
+    }
+    public class LoggedInOrderResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.LoggedInOrderResult>
+    {
+        public aweXpect.Results.LoggedInOrderWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class LoggedInOrderWithinResult : aweXpect.Results.LoggedInOrderResult
+    {
+        public aweXpect.Results.LoggedInOrderResult CheckEvery(System.TimeSpan interval) { }
+    }
+    public sealed class LoggedLevelResult : aweXpect.Results.LoggedResult
+    {
+        public aweXpect.Results.LoggedResult OrHigher() { }
+    }
+    public sealed class LoggedMessageResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public sealed class LoggedPropertyResult : aweXpect.Results.LoggedResult
+    {
+        public aweXpect.Results.LoggedPropertyValueResult WithValue(string? expected) { }
+    }
+    public sealed class LoggedPropertyValueResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public class LoggedResult : aweXpect.Results.LogRecordFilterResult<aweXpect.Results.LoggedResult>
+    {
+        public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> AtLeast() { }
+        public aweXpect.Results.LoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
+        public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> AtMost() { }
+        public aweXpect.Results.LoggedCountResult AtMost(aweXpect.Core.Times maximum) { }
+        public aweXpect.Results.BetweenResult<aweXpect.Results.LoggedCountResult> Between(int minimum) { }
+        public aweXpect.Results.LoggedCountResult Exactly(aweXpect.Core.Times expected) { }
+        public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> LessThan() { }
+        public aweXpect.Results.LoggedCountResult LessThan(aweXpect.Core.Times maximum) { }
+        public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> MoreThan() { }
+        public aweXpect.Results.LoggedCountResult MoreThan(aweXpect.Core.Times minimum) { }
+        public aweXpect.Results.LoggedCountResult Never() { }
+        public aweXpect.Results.LoggedCountResult Once() { }
+        public aweXpect.Results.LoggedInOrderResult Then(params System.Func<aweXpect.Results.LogRecordStep, aweXpect.Results.LogRecordStepResult>[] steps) { }
+        public aweXpect.Results.LoggedCountResult Twice() { }
+        public aweXpect.Results.LoggedCategoryResult WithCategory(string expected) { }
+        public aweXpect.Results.LoggedMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.LoggedPropertyResult WithProperty(string name) { }
+        public aweXpect.Results.LoggedWithinResult Within(System.TimeSpan timeout) { }
+    }
+    public sealed class LoggedWithinResult : aweXpect.Results.LoggedResult
+    {
+        public aweXpect.Results.LoggedResult CheckEvery(System.TimeSpan interval) { }
+    }
 }
 namespace aweXpect
 {
     public static class ThatFakeLogCollector
     {
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasLoggedLevelResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasNotLoggedResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasNotLoggedLevelResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
     }
     public static class ThatFakeLogger
     {
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasLoggedLevelResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasNotLoggedResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.HasNotLoggedLevelResult HasNotLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
     }
 }

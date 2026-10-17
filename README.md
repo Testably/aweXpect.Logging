@@ -17,15 +17,15 @@ ILogger logger = new FakeLogger(collector);
 logger.LogWarning("Retry limit reached");
 
 // verify that a record with the log level was logged
-await Expect.That(collector).HasLogged(LogLevel.Warning);
+await Expect.That(collector).LoggedWarning();
 ```
 
-A failing expectation lists the collected records. If only an error was logged, `HasLogged(LogLevel.Warning)` would
+A failing expectation lists the collected records. If only an error was logged, `LoggedWarning()` would
 fail with:
 
 ```text title="Failure message"
 Expected that collector
-has logged a record with level Warning at least once,
+logged a record with level Warning at least once,
 but it did not log any such record
 
 Records:
@@ -36,14 +36,14 @@ Records:
 
 ## Overview
 
-| Expectation                                               | Subject                          | Summary                                        |
-|-----------------------------------------------------------|----------------------------------|------------------------------------------------|
-| [`HasLogged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level  |
-| [`HasNotLogged`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level            |
+| Expectation                                            | Subject                          | Summary                                                                 |
+|--------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|
+| [`Logged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()`   |
+| [`DidNotLog`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`            |
 
 ## Documentation
 
 The full documentation is available at
 [docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/):
 
-- [Log records](Docs/pages/01-log-records.md): `HasLogged` and `HasNotLogged` on the records of a `FakeLogCollector`
+- [Log records](Docs/pages/01-log-records.md): `Logged` and `DidNotLog` on the records of a `FakeLogCollector`

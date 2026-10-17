@@ -13,40 +13,40 @@ internal static partial class Checks
 	[
 		new("a collector with a record of the level passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-				.HasLogged(LogLevel.Warning))),
+				.Logged(LogLevel.Warning))),
 		new("a collector without a record of the level fails and lists the records",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Information, "Starting"))
-					.HasLogged(LogLevel.Warning),
-				"has logged a record with level Warning", "  [Information] \"Starting\"")),
+					.Logged(LogLevel.Warning),
+				"logged a record with level Warning", "  [Information] \"Starting\"")),
 		new("a collector with the expected number of records passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-				.HasLogged(LogLevel.Warning).Once())),
+				.Logged(LogLevel.Warning).Once())),
 		new("a collector with another number of records fails",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged(LogLevel.Warning).Twice(),
-				"has logged a record with level Warning exactly twice", "but it logged 1 such record")),
+					.Logged(LogLevel.Warning).Twice(),
+				"logged a record with level Warning exactly twice", "but it logged 1 such record")),
 		new("a collector with a record matching the message pattern passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit 3 reached"))
-				.HasLogged().WithMessage("Retry limit * reached").AsWildcard())),
+				.Logged().WithMessage("Retry limit * reached").AsWildcard())),
 		new("a collector without a record matching the message regex fails",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex(),
-				"has logged a record with level Warning and message matching regex \"^Retry [0-9]+$\"",
+					.Logged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex(),
+				"logged a record with level Warning and message matching regex \"^Retry [0-9]+$\"",
 				"but it did not log any such record")),
 		new("a collector with a record of a higher level passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Critical, "Retry limit reached"))
-				.HasLogged(LogLevel.Warning).OrHigher())),
+				.Logged(LogLevel.Warning).OrHigher())),
 		new("a collector with an unexpected record fails and lists the matching records",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged(LogLevel.Warning).Never(),
+					.Logged(LogLevel.Warning).Never(),
 				"Matching records:", "  [Warning] \"Retry limit reached\"")),
 		new("a collector without a record of the level passes the absence check",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Information, "Starting"))
-				.HasNotLogged(LogLevel.Warning).OrHigher())),
+				.DidNotLog(LogLevel.Warning).OrHigher())),
 		new("a collector with a matching record fails the absence check",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasNotLogged().WithMessage("Retry *").AsWildcard(),
-				"has not logged a record with message matching \"Retry *\"", "but it logged 1 such record")),
+					.DidNotLog().WithMessage("Retry *").AsWildcard(),
+				"did not log a record with message matching \"Retry *\"", "but it logged 1 such record")),
 		new("a collector with a record with a derived exception passes",
 			() => ShouldPass(async () =>
 			{
@@ -54,12 +54,12 @@ internal static partial class Checks
 				FakeLogger logger = new(collector);
 				FileNotFoundException exception = new();
 				logger.LogError(exception, "Configuration missing");
-				await That(collector).HasLogged(LogLevel.Error).WithException<IOException>();
+				await That(collector).Logged(LogLevel.Error).WithException<IOException>();
 			})),
 		new("a collector without a record with the exception fails",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Error, "Retry limit reached"))
-					.HasLogged(LogLevel.Error).WithException<TimeoutException>(),
-				"has logged a record with level Error and exception of type TimeoutException",
+					.Logged(LogLevel.Error).WithException<TimeoutException>(),
+				"logged a record with level Error and exception of type TimeoutException",
 				"  [Error] \"Retry limit reached\"")),
 		new("a collector that logs the record during the timeout passes",
 			() => ShouldPass(async () =>
@@ -71,7 +71,7 @@ internal static partial class Checks
 					await Task.Delay(50);
 					logger.LogWarning("Retry limit reached");
 				});
-				await That(collector).HasLogged(LogLevel.Warning)
+				await That(collector).Logged(LogLevel.Warning)
 					.Within(TimeSpan.FromSeconds(30)).CheckEvery(TimeSpan.FromMilliseconds(10));
 				await logging;
 			})),
@@ -85,17 +85,17 @@ internal static partial class Checks
 						await Task.Delay(50);
 						logger.LogError("Retry limit reached");
 					});
-					await That(collector).HasNotLogged(LogLevel.Error).Within(TimeSpan.FromSeconds(30));
+					await That(collector).DidNotLog(LogLevel.Error).Within(TimeSpan.FromSeconds(30));
 					await logging;
 				},
-				"has not logged a record with level Error within 0:30", "but it logged 1 such record")),
+				"did not log a record with level Error within 0:30", "but it logged 1 such record")),
 		new("a collector with a record of the logger category of a nested generic type passes",
 			() => ShouldPass(async () =>
 			{
 				FakeLogCollector collector = new();
 				FakeLogger<Repository<int>> logger = new(collector);
 				logger.LogInformation("Saving");
-				await That(collector).HasLogged().WithCategory<Repository<string>>();
+				await That(collector).Logged().WithCategory<Repository<string>>();
 			})),
 		new("a collector with a record of a category matching the pattern passes",
 			() => ShouldPass(async () =>
@@ -103,20 +103,20 @@ internal static partial class Checks
 				FakeLogCollector collector = new();
 				FakeLogger<Repository<int>> logger = new(collector);
 				logger.LogInformation("Saving");
-				await That(collector).HasLogged().WithCategory(".Checks.Repository").AsSuffix();
+				await That(collector).Logged().WithCategory(".Checks.Repository").AsSuffix();
 			})),
 		new("a collector without a record of the event ID fails and lists the event IDs",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged().WithEventId(1001),
-				"has logged a record with event ID 1001", "  [Warning] \"Retry limit reached\" (event ID ")),
+					.Logged().WithEventId(1001),
+				"logged a record with event ID 1001", "  [Warning] \"Retry limit reached\" (event ID ")),
 		new("a collector with a record of the property and template passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-				.HasLogged().WithProperty("Message").WithValue("Retry limit *").AsWildcard()
+				.Logged().WithProperty("Message").WithValue("Retry limit *").AsWildcard()
 				.WithMessageTemplate("{Message}"))),
 		new("a collector without a record of the property fails and lists the property",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged().WithProperty("Attempt").WithValue("3"),
-				"has logged a record with property Attempt with value equal to \"3\"",
+					.Logged().WithProperty("Attempt").WithValue("3"),
+				"logged a record with property Attempt with value equal to \"3\"",
 				"  [Warning] \"Retry limit reached\" (no property Attempt)")),
 		new("a collector with records in order passes",
 			() => ShouldPass(async () =>
@@ -125,8 +125,8 @@ internal static partial class Checks
 				FakeLogger logger = new(collector);
 				logger.LogInformation("Starting");
 				logger.LogWarning("Retry 1");
-				await That(collector).HasLogged(LogLevel.Information)
-					.Then(r => r.HasLogged(LogLevel.Warning).WithMessage("Retry *").AsWildcard());
+				await That(collector).Logged(LogLevel.Information)
+					.Then(r => r.Logged(LogLevel.Warning).WithMessage("Retry *").AsWildcard());
 			})),
 		new("a collector with a record logged too early fails",
 			() => ShouldFail(async () =>
@@ -135,7 +135,7 @@ internal static partial class Checks
 					FakeLogger logger = new(collector);
 					logger.LogWarning("Retry 1");
 					logger.LogInformation("Starting");
-					await That(collector).HasLogged(LogLevel.Information).Then(r => r.HasLogged(LogLevel.Warning));
+					await That(collector).Logged(LogLevel.Information).Then(r => r.Logged(LogLevel.Warning));
 				},
 				"a record with level Warning in order", "but it logged a record with level Warning too early")),
 		new("a generic fake logger with a record passes",
@@ -143,12 +143,26 @@ internal static partial class Checks
 			{
 				FakeLogger<Repository<int>> logger = new();
 				logger.LogWarning("Retry limit reached");
-				await That(logger).HasLogged(LogLevel.Warning).WithCategory<Repository<int>>()
-					.And.HasNotLogged(LogLevel.Error);
+				await That(logger).Logged(LogLevel.Warning).WithCategory<Repository<int>>()
+					.And.DidNotLog(LogLevel.Error);
 			})),
 		new("a fake logger without a record fails",
-			() => ShouldFail(async () => await That(new FakeLogger()).HasLogged(LogLevel.Warning),
-				"has logged a record with level Warning", "but it did not log any record")),
+			() => ShouldFail(async () => await That(new FakeLogger()).Logged(LogLevel.Warning),
+				"logged a record with level Warning", "but it did not log any record")),
+		new("a collector with records of the levels of the level methods passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger logger = new(collector);
+				logger.LogInformation("Starting");
+				logger.LogWarning("Retry 1");
+				await That(collector).LoggedInformation().Then(r => r.LoggedWarning())
+					.And.DidNotLogError();
+			})),
+		new("a collector with a record of the level of the absence level method fails",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Critical, "Retry limit reached"))
+					.DidNotLogCritical(),
+				"did not log a record with level Critical", "but it logged 1 such record")),
 	];
 
 	private sealed class Repository<T>;
