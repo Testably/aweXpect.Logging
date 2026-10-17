@@ -13,7 +13,7 @@ namespace aweXpect.Results;
 ///     <see cref="AndOrResult{TType,TThat,TSelf}.Or" />.
 /// </summary>
 /// <remarks>
-///     Shared by <see cref="HasLoggedResult" /> and <see cref="HasNotLoggedResult" />, so that a filter returns the
+///     Shared by <see cref="LoggedResult" /> and <see cref="DidNotLogResult" />, so that a filter returns the
 ///     type it was called on and keeps its options available.
 /// </remarks>
 public abstract class LogRecordFilterResult<TSelf>

@@ -16,7 +16,7 @@ public sealed class LogRecordStepPropertyResult : LogRecordStepResult
 		_property = property;
 	}
 
-	/// <inheritdoc cref="HasLoggedPropertyResult.WithValue(string)" />
+	/// <inheritdoc cref="LoggedPropertyResult.WithValue(string)" />
 	public LogRecordStepPropertyValueResult WithValue(string? expected)
 		=> new(Filter, _property.WithValue(expected));
 }

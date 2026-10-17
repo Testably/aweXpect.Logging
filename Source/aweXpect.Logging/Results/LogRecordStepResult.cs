@@ -4,11 +4,11 @@ using aweXpect.Options;
 namespace aweXpect.Results;
 
 /// <summary>
-///     A step of <see cref="HasLoggedResult.Then(Func{LogRecordStep, LogRecordStepResult}[])" />, which allows
+///     A step of <see cref="LoggedResult.Then(Func{LogRecordStep, LogRecordStepResult}[])" />, which allows
 ///     narrowing down the record that is expected for it.
 /// </summary>
 /// <remarks>
-///     It offers the filters of a <see cref="HasLoggedResult" />, but neither quantifiers nor a timeout, as these apply
+///     It offers the filters of a <see cref="LoggedResult" />, but neither quantifiers nor a timeout, as these apply
 ///     to the whole order.
 /// </remarks>
 public class LogRecordStepResult
@@ -20,7 +20,7 @@ public class LogRecordStepResult
 
 	internal LogRecordFilter Filter { get; }
 
-	/// <inheritdoc cref="HasLoggedResult.WithCategory(string)" />
+	/// <inheritdoc cref="LoggedResult.WithCategory(string)" />
 	public LogRecordStepCategoryResult WithCategory(string expected)
 		=> new(Filter, Filter.AddCategory(expected));
 
@@ -46,7 +46,7 @@ public class LogRecordStepResult
 		return this;
 	}
 
-	/// <inheritdoc cref="HasLoggedResult.WithMessage(string)" />
+	/// <inheritdoc cref="LoggedResult.WithMessage(string)" />
 	public LogRecordStepMessageResult WithMessage(string expected)
 		=> new(Filter, Filter.AddMessage(expected));
 
@@ -57,7 +57,7 @@ public class LogRecordStepResult
 		return this;
 	}
 
-	/// <inheritdoc cref="HasLoggedResult.WithProperty(string)" />
+	/// <inheritdoc cref="LoggedResult.WithProperty(string)" />
 	public LogRecordStepPropertyResult WithProperty(string name)
 		=> new(Filter, Filter.AddProperty(name));
 }
