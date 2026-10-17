@@ -146,3 +146,33 @@ Only one quantifier can be specified for each `HasLogged`, after the message:
 ```csharp
 await Expect.That(collector).HasLogged(LogLevel.Warning).WithMessage("Retry *").AsWildcard().Twice();
 ```
+
+## Not logged
+
+You can verify that no matching record was logged:
+
+```csharp
+await Expect.That(collector).HasNotLogged(LogLevel.Error);
+await Expect.That(collector).HasNotLogged(LogLevel.Warning).OrHigher();
+await Expect.That(collector).HasNotLogged().WithMessage("*password*").AsWildcard();
+```
+
+`HasNotLogged` takes the same filters as `HasLogged`, but no quantifier, as it is the same as `HasLogged(…).Never()`.
+If an error was logged, `HasNotLogged(LogLevel.Warning).OrHigher()` would fail with:
+
+```text title="Failure message"
+Expected that collector
+has not logged a record with level Warning or higher,
+but it logged 1 such record
+
+Matching records:
+[
+  [Error] "Retry limit reached"
+]
+
+Records:
+[
+  [Information] "Starting",
+  [Error] "Retry limit reached"
+]
+```
