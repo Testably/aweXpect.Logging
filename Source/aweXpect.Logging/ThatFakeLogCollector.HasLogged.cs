@@ -51,19 +51,47 @@ public static partial class ThatFakeLogCollector
 			quantifier, repeatedCheckOptions, steps);
 	}
 
+	/// <remarks>
+	///     For the collector of a <see cref="FakeLogger" />, the constraint is forwarded the collector of the logger,
+	///     as the value of the expectation stays the logger.
+	/// </remarks>
 	private static ExpectationBuilder AddHasLoggedConstraint(IThat<FakeLogCollector?> source, LogRecordFilter filter,
 		Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions, List<LogRecordFilter> steps)
-		=> source.Get().ExpectationBuilder.AddConstraint(
-			(Filter: filter, Quantifier: quantifier, RepeatedCheckOptions: repeatedCheckOptions, Steps: steps),
-			static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier,
-				state.RepeatedCheckOptions, state.Steps));
+	{
+		ExpectationBuilder expectationBuilder = source.Get().ExpectationBuilder;
+		(LogRecordFilter Filter, Quantifier Quantifier, RepeatedCheckOptions RepeatedCheckOptions,
+			List<LogRecordFilter> Steps) state = (filter, quantifier, repeatedCheckOptions, steps);
+		return source is ThatFakeLogger.CollectorOfLogger
+			? expectationBuilder.AddConstraint(state, static (state, it, grammars)
+				=> new CollectorOfLoggerConstraint(new HasLoggedConstraint(it, grammars, state.Filter,
+					state.Quantifier, state.RepeatedCheckOptions, state.Steps)))
+			: expectationBuilder.AddConstraint(state, static (state, it, grammars)
+				=> new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier, state.RepeatedCheckOptions,
+					state.Steps));
+	}
+
+	/// <summary>
+	///     Verifies the collector of a <see cref="FakeLogger" /> with the <paramref name="constraint" />.
+	/// </summary>
+	private sealed class CollectorOfLoggerConstraint(HasLoggedConstraint constraint)
+		: IAsyncContextConstraint<FakeLogger?>,
+			IExpectationTextConstraint
+	{
+		public ValueTask<ConstraintResult> IsMetBy(FakeLogger? actual, IEvaluationContext context,
+			CancellationToken cancellationToken)
+			=> constraint.IsMetBy(actual?.Collector, context, cancellationToken);
+
+		public ValueTask<ConstraintResult> GetExpectationResult(IEvaluationContext context,
+			CancellationToken cancellationToken)
+			=> new(constraint);
+
+		public void AppendExpectation(StringBuilder stringBuilder, string? indentation = null)
+			=> constraint.AppendExpectation(stringBuilder, indentation);
+	}
 
 	/// <remarks>
 	///     The <paramref name="steps" /> are added by <see cref="HasLoggedResult.Then" /> after the constraint, so it
 	///     verifies the order of the records instead of their amount, as soon as there are any.
-	///     <para />
-	///     It is a constraint on any value, so that it also applies to a <see cref="FakeLogger" />, whose collector it
-	///     verifies, as the value of an expectation keeps its type.
 	/// </remarks>
 	private sealed class HasLoggedConstraint(
 		string it,
@@ -73,7 +101,7 @@ public static partial class ThatFakeLogCollector
 		RepeatedCheckOptions repeatedCheckOptions,
 		List<LogRecordFilter> steps)
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
-			IAsyncContextConstraint<object?>
+			IAsyncContextConstraint<FakeLogCollector?>
 	{
 		private bool _isMissingStepLogged;
 		private List<FakeLogRecord> _matchingRecords = [];
@@ -87,7 +115,7 @@ public static partial class ThatFakeLogCollector
 		///     With a timeout, the records are read repeatedly until their amount decides the outcome, as for recorded
 		///     events: a lower bound stops waiting as soon as it is met, an upper bound as soon as it is exceeded.
 		/// </remarks>
-		public async ValueTask<ConstraintResult> IsMetBy(object? subject, IEvaluationContext context,
+		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, IEvaluationContext context,
 			CancellationToken cancellationToken)
 		{
 			if (IsOrdered && !IsAtLeastOnce())
@@ -97,7 +125,6 @@ public static partial class ThatFakeLogCollector
 
 			filter.ValidateExpected();
 			steps.ForEach(step => step.ValidateExpected());
-			FakeLogCollector? actual = subject is FakeLogger logger ? logger.Collector : subject as FakeLogCollector;
 			Actual = actual;
 			if (actual is null)
 			{

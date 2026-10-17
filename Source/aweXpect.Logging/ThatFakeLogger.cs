@@ -40,9 +40,9 @@ public static class ThatFakeLogger
 	///     Registers the expectations on the collector with the expectation on the logger.
 	/// </summary>
 	/// <remarks>
-	///     The value of the expectation stays the logger, which the constraint replaces by its collector.
+	///     The value of the expectation stays the logger, so the constraints for it are forwarded its collector.
 	/// </remarks>
-	private sealed class CollectorOfLogger(IThat<FakeLogger?> logger) : IExpectThat<FakeLogCollector?>
+	internal sealed class CollectorOfLogger(IThat<FakeLogger?> logger) : IExpectThat<FakeLogCollector?>
 	{
 		public ExpectationBuilder ExpectationBuilder { get; } = logger.Get().ExpectationBuilder;
 	}
