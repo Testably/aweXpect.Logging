@@ -178,6 +178,47 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
+			public async Task WithCategory_WhenOnlyOtherCategoriesLogged_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				using LoggerFactory factory = new([new FakeLoggerProvider(subject),]);
+				ILogger logger = factory.CreateLogger("MyApp.Payments");
+				logger.LogError("Payment declined");
+
+				async Task Act()
+					=> await That(subject).HasNotLogged(LogLevel.Error).WithCategory("MyApp.Orders");
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task WithEventId_WhenEventIdWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentDeclined(new FakeLogger(subject), null);
+
+				async Task Act()
+					=> await That(subject).HasNotLogged().WithEventId(2001);
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with event ID 2001,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Error] "Payment declined" (event ID 2001)
+					             ]
+
+					             Records:
+					             [
+					               [Error] "Payment declined" (event ID 2001)
+					             ]
+					             """);
+			}
+
+			[Fact]
 			public async Task WithException_WhenExceptionIsOfOtherType_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -300,6 +341,9 @@ public sealed partial class ThatFakeLogCollector
 
 				await That(Act).DoesNotThrow();
 			}
+
+			private static readonly Action<ILogger, Exception?> LogPaymentDeclined =
+				LoggerMessage.Define(LogLevel.Error, new EventId(2001), "Payment declined");
 		}
 
 		public sealed class NegatedTests

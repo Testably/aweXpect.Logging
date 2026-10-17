@@ -88,7 +88,21 @@ internal static partial class Checks
 					await logging;
 				},
 				"has not logged a record with level Error within 0:30", "but it logged 1 such record")),
+		new("a collector with a record of the logger category of a nested generic type passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger<Repository<int>> logger = new(collector);
+				logger.LogInformation("Saving");
+				await That(collector).HasLogged().WithCategory<Repository<string>>();
+			})),
+		new("a collector without a record of the event ID fails and lists the event IDs",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasLogged().WithEventId(1001),
+				"has logged a record with event ID 1001", "  [Warning] \"Retry limit reached\" (event ID ")),
 	];
+
+	private sealed class Repository<T>;
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
 	{

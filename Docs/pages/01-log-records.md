@@ -110,6 +110,31 @@ Records:
 ]
 ```
 
+## Category and event ID
+
+When several loggers write to the same collector, e.g. with `AddFakeLogging()` in a service collection, you can verify
+the category of the logger and the event ID of the record:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Warning).WithCategory<OrderService>();
+await Expect.That(collector).HasLogged().WithCategory("MyApp.Orders").WithEventId(1001);
+```
+
+`WithCategory<T>()` expects the category of an `ILogger<T>`, i.e. the full name of the type, where nested types are
+separated by a dot and generic types are named without their type arguments. The category and the event ID are
+compared exactly, and the failure message lists them for each record when they are compared:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with category "MyApp.Orders" and event ID 1001 at least once,
+but it did not log any such record
+
+Records:
+[
+  [Warning] "Retry limit reached" (category "MyApp.Orders", event ID 1002)
+]
+```
+
 ## Quantifiers
 
 By default, a single matching record is enough. You can specify how many matching records are expected instead:

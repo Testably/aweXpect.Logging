@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Formatting;
@@ -15,12 +16,59 @@ namespace aweXpect.Options;
 /// </summary>
 internal sealed class LogRecordFilter(LogLevel? level)
 {
+	private readonly List<string> _categories = [];
+	private readonly List<int> _eventIds = [];
 	private readonly List<Type> _exceptionTypes = [];
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
 	private bool _orHigher;
 
+	/// <summary>
+	///     Whether the category is compared, so that the failure message lists it for each record.
+	/// </summary>
+	public bool ComparesCategory => _categories.Count > 0;
+
+	/// <summary>
+	///     Whether the event ID is compared, so that the failure message lists it for each record.
+	/// </summary>
+	public bool ComparesEventId => _eventIds.Count > 0;
+
+	public void AddCategory(string category)
+		=> _categories.Add(category);
+
+	public void AddEventId(int eventId)
+		=> _eventIds.Add(eventId);
+
 	public void AddException(Type exceptionType)
 		=> _exceptionTypes.Add(exceptionType);
+
+	/// <summary>
+	///     The category of an <see cref="ILogger{TCategoryName}" /> for the <paramref name="type" />, e.g.
+	///     <c>MyApp.Outer.Repository</c> for <c>MyApp.Outer+Repository`1[System.Int32]</c>.
+	/// </summary>
+	/// <remarks>
+	///     Mirrors the category name that <see cref="Logger{T}" /> and <see cref="FakeLogger{T}" /> use: nested types
+	///     are separated by a dot, and generic types are named without their arity and type arguments.
+	/// </remarks>
+	public static string GetCategoryName(Type type)
+	{
+		string fullName = (type.IsGenericType ? type.GetGenericTypeDefinition() : type).FullName ?? type.Name;
+		StringBuilder categoryName = new(fullName.Length);
+		bool isArity = false;
+		foreach (char character in fullName)
+		{
+			if (character == '`')
+			{
+				isArity = true;
+			}
+			else if (!isArity || !char.IsDigit(character))
+			{
+				isArity = false;
+				categoryName.Append(character == '+' ? '.' : character);
+			}
+		}
+
+		return categoryName.ToString();
+	}
 
 	public StringEqualityOptions AddMessage(string expected)
 	{
@@ -53,7 +101,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
-		if (_exceptionTypes.Any(exceptionType => !exceptionType.IsInstanceOfType(record.Exception)))
+		if (_categories.Any(category => !string.Equals(category, record.Category, StringComparison.Ordinal)) ||
+		    _eventIds.Any(eventId => eventId != record.Id.Id) ||
+		    _exceptionTypes.Any(exceptionType => !exceptionType.IsInstanceOfType(record.Exception)))
 		{
 			return false;
 		}
@@ -88,6 +138,16 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		foreach (Type exceptionType in _exceptionTypes)
 		{
 			conditions.Add($"exception of type {Formatter.Format(exceptionType)}");
+		}
+
+		foreach (string category in _categories)
+		{
+			conditions.Add($"category {Formatter.Format(category)}");
+		}
+
+		foreach (int eventId in _eventIds)
+		{
+			conditions.Add($"event ID {eventId}");
 		}
 
 		return conditions.Count == 0 ? "a record" : $"a record with {string.Join(" and ", conditions)}";

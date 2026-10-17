@@ -41,6 +41,9 @@ namespace aweXpect.Results
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
     {
+        public TSelf WithCategory(string category) { }
+        public TSelf WithCategory<TCategory>() { }
+        public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>()
             where TException : System.Exception { }
         public TSelf Within(System.TimeSpan timeout) { }
