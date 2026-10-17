@@ -36,12 +36,14 @@ Records:
 
 ## Overview
 
-| Expectation                                       | Subject            | Summary                                        |
-|---------------------------------------------------|--------------------|------------------------------------------------|
-| [`HasLogged`](Docs/pages/01-log-records.md#level) | `FakeLogCollector` | logged at least one record with the log level  |
+| Expectation                                               | Subject            | Summary                                        |
+|-----------------------------------------------------------|--------------------|------------------------------------------------|
+| [`HasLogged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector` | logged at least one record with the log level  |
+| [`HasNotLogged`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector` | logged no record with the log level            |
+
 ## Documentation
 
 The full documentation is available at
 [docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/):
 
-- [Log records](Docs/pages/01-log-records.md): `HasLogged` on the records of a `FakeLogCollector`
+- [Log records](Docs/pages/01-log-records.md): `HasLogged` and `HasNotLogged` on the records of a `FakeLogCollector`

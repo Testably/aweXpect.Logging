@@ -39,6 +39,13 @@ internal static partial class Checks
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
 					.HasLogged(LogLevel.Warning).Never(),
 				"Matching records:", "  [Warning] \"Retry limit reached\"")),
+		new("a collector without a record of the level passes the absence check",
+			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Information, "Starting"))
+				.HasNotLogged(LogLevel.Warning).OrHigher())),
+		new("a collector with a matching record fails the absence check",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasNotLogged().WithMessage("Retry *").AsWildcard(),
+				"has not logged a record with message matching \"Retry *\"", "but it logged 1 such record")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)
