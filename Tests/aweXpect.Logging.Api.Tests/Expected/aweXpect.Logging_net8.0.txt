@@ -5,10 +5,12 @@ namespace aweXpect.Results
 {
     public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult>
     {
+        public aweXpect.Results.HasLoggedCountResult CheckEvery(System.TimeSpan interval) { }
         public aweXpect.Results.HasLoggedCountResult Within(System.TimeSpan timeout) { }
     }
     public sealed class HasLoggedInOrderResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedInOrderResult>
     {
+        public aweXpect.Results.HasLoggedInOrderResult CheckEvery(System.TimeSpan interval) { }
         public aweXpect.Results.HasLoggedInOrderResult Within(System.TimeSpan timeout) { }
     }
     public sealed class HasLoggedLevelResult : aweXpect.Results.HasLoggedResult
@@ -58,6 +60,7 @@ namespace aweXpect.Results
     public abstract class LogRecordFilterResult<TSelf> : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, TSelf>
         where TSelf : aweXpect.Results.LogRecordFilterResult<TSelf>
     {
+        public TSelf CheckEvery(System.TimeSpan interval) { }
         public TSelf WithCategory(string category) { }
         public TSelf WithCategory<TCategory>() { }
         public TSelf WithEventId(int eventId) { }

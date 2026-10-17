@@ -23,6 +23,13 @@ public sealed class HasLoggedInOrderResult
 		_repeatedCheckOptions = repeatedCheckOptions;
 	}
 
+	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.CheckEvery(TimeSpan)" />
+	public HasLoggedInOrderResult CheckEvery(TimeSpan interval)
+	{
+		_repeatedCheckOptions.CheckEveryAfterWithin(interval);
+		return this;
+	}
+
 	/// <summary>
 	///     Allows a <paramref name="timeout" /> until all records must have been logged in order, e.g. for the records
 	///     of a background service.
