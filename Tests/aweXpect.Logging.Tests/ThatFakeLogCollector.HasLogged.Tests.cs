@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using aweXpect.Core;
+using aweXpect.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 
@@ -20,7 +23,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Warning,
+					             has logged a record with level Warning at least once,
 					             but it was <null>
 					             """);
 			}
@@ -37,7 +40,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Information and has logged a record with level Warning,
+					             has logged a record with level Information at least once and has logged a record with level Warning at least once,
 					             but it only logged records with other levels
 
 					             Records:
@@ -60,7 +63,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that new { Collectors = subject, }
-					             whose Collectors have logged a record with level Warning for all items,
+					             whose Collectors have logged a record with level Warning at least once for all items,
 					             *
 					             """).AsWildcard()
 					.Because("the items are the plural subject of the expectation");
@@ -82,7 +85,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Warning,
+					             has logged a record with level Warning at least once,
 					             but it only logged records with other levels
 
 					             Records:
@@ -114,7 +117,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage($"""
 					              Expected that subject
-					              has logged a record with level Warning,
+					              has logged a record with level Warning at least once,
 					              but it only logged records with other levels
 
 					              Records:
@@ -135,7 +138,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Warning,
+					             has logged a record with level Warning at least once,
 					             but it did not log any record
 					             """);
 			}
@@ -154,7 +157,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Warning,
+					             has logged a record with level Warning at least once,
 					             but it only logged records with other levels
 
 					             Records:
@@ -193,6 +196,125 @@ public sealed partial class ThatFakeLogCollector
 				LoggerMessage.Define<int>(LogLevel.Information, new EventId(1), "Message {Number}");
 		}
 
+		public sealed class QuantifierTests
+		{
+			[Fact]
+			public async Task WhenCombinedWithAnd_ShouldListBothQuantifiers()
+			{
+				FakeLogCollector subject = WithWarnings(1);
+
+				async Task Act()
+					=> await That(subject).HasLogged(LogLevel.Warning).Once()
+						.And.HasLogged(LogLevel.Information).Never();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with level Warning exactly once and has not logged a record with level Information,
+					             but it logged 1 such record
+
+					             Records:
+					             [
+					               [Information] "Starting",
+					               [Warning] "Retry"
+					             ]
+					             """);
+			}
+
+			[Theory]
+			[MemberData(nameof(Quantifiers))]
+			public async Task WhenCountDoesNotMatch_ShouldFail(string quantifier)
+			{
+				(Func<HasLoggedResult, HasLoggedCountResult> quantify, _, int failingCount, string expectation) =
+					Cases[quantifier];
+				FakeLogCollector subject = WithWarnings(failingCount);
+
+				async Task Act()
+					=> await quantify(That(subject).HasLogged(LogLevel.Warning));
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage($"""
+					              Expected that subject
+					              {expectation},
+					              but it logged {failingCount} such record{(failingCount == 1 ? "" : "s")}
+
+					              Records:
+					              *
+					              """).AsWildcard();
+			}
+
+			[Theory]
+			[MemberData(nameof(Quantifiers))]
+			public async Task WhenCountMatches_ShouldSucceed(string quantifier)
+			{
+				(Func<HasLoggedResult, HasLoggedCountResult> quantify, int passingCount, _, _) = Cases[quantifier];
+				FakeLogCollector subject = WithWarnings(passingCount);
+
+				async Task Act()
+					=> await quantify(That(subject).HasLogged(LogLevel.Warning));
+
+				await That(Act).DoesNotThrow();
+			}
+
+			private static readonly Dictionary<string, (Func<HasLoggedResult, HasLoggedCountResult> Quantify,
+				int PassingCount, int FailingCount, string Expectation)> Cases = new()
+			{
+				["AtLeast(2.Times())"] = (r => r.AtLeast(2.Times()), 2, 1,
+					"has logged a record with level Warning at least twice"),
+				["AtLeast().Twice()"] = (r => r.AtLeast().Twice(), 3, 1,
+					"has logged a record with level Warning at least twice"),
+				["AtMost(1.Times())"] = (r => r.AtMost(1.Times()), 0, 2,
+					"has logged a record with level Warning at most once"),
+				["AtMost().Once()"] = (r => r.AtMost().Once(), 1, 2,
+					"has logged a record with level Warning at most once"),
+				["Between(1).And(2.Times())"] = (r => r.Between(1).And(2.Times()), 2, 3,
+					"has logged a record with level Warning between 1 and 2 times"),
+				["Exactly(3.Times())"] = (r => r.Exactly(3.Times()), 3, 2,
+					"has logged a record with level Warning exactly 3 times"),
+				["LessThan(2.Times())"] = (r => r.LessThan(2.Times()), 1, 2,
+					"has logged a record with level Warning fewer than twice"),
+				["LessThan().Twice()"] = (r => r.LessThan().Twice(), 0, 2,
+					"has logged a record with level Warning fewer than twice"),
+				["MoreThan(1.Times())"] = (r => r.MoreThan(1.Times()), 2, 1,
+					"has logged a record with level Warning more than once"),
+				["MoreThan().Once()"] = (r => r.MoreThan().Once(), 3, 1,
+					"has logged a record with level Warning more than once"),
+				["Never()"] = (r => r.Never(), 0, 1,
+					"has not logged a record with level Warning"),
+				["Once()"] = (r => r.Once(), 1, 2,
+					"has logged a record with level Warning exactly once"),
+				["Twice()"] = (r => r.Twice(), 2, 1,
+					"has logged a record with level Warning exactly twice"),
+			};
+
+			public static TheoryData<string> Quantifiers
+			{
+				get
+				{
+					TheoryData<string> quantifiers = new();
+					foreach (string quantifier in Cases.Keys)
+					{
+						quantifiers.Add(quantifier);
+					}
+
+					return quantifiers;
+				}
+			}
+
+			private static FakeLogCollector WithWarnings(int count)
+			{
+				FakeLogCollector collector = new();
+				FakeLogger logger = new(collector);
+				logger.LogInformation("Starting");
+				for (int i = 0; i < count; i++)
+				{
+					logger.LogWarning("Retry");
+				}
+
+				return collector;
+			}
+		}
+
 		public sealed class NegatedTests
 		{
 			[Fact]
@@ -210,6 +332,84 @@ public sealed partial class ThatFakeLogCollector
 					             but it was <null>
 					             """)
 					.Because("a null collector cannot tell whether a record was logged");
+			}
+
+			[Fact]
+			public async Task WhenNeverIsNegated_AndNothingWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+
+				async Task Act()
+					=> await That(subject).DoesNotComplyWith(it => it.HasLogged(LogLevel.Warning).Never());
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with level Warning at least once,
+					             but it did not log any record
+					             """);
+			}
+
+			[Fact]
+			public async Task WhenNegatedQuantifierHasComplement_ShouldUseComplement()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogWarning("Retry 1");
+				logger.LogWarning("Retry 2");
+
+				async Task Act()
+					=> await That(subject).DoesNotComplyWith(it => it.HasLogged(LogLevel.Warning).AtLeast(2.Times()));
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with level Warning fewer than twice,
+					             but it logged 2 such records
+
+					             Records:
+					             [
+					               [Warning] "Retry 1",
+					               [Warning] "Retry 2"
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task WhenNegatedQuantifierHasNoComplement_ShouldNegateVerb()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogWarning("Retry 1");
+				logger.LogWarning("Retry 2");
+
+				async Task Act()
+					=> await That(subject).DoesNotComplyWith(it => it.HasLogged(LogLevel.Warning).Twice());
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with level Warning exactly twice,
+					             but it logged 2 such records
+
+					             Records:
+					             [
+					               [Warning] "Retry 1",
+					               [Warning] "Retry 2"
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task WhenNegatedQuantifierIsNotMet_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				new FakeLogger(subject).LogWarning("Retry 1");
+
+				async Task Act()
+					=> await That(subject).DoesNotComplyWith(it => it.HasLogged(LogLevel.Warning).Twice());
+
+				await That(Act).DoesNotThrow();
 			}
 
 			[Fact]
