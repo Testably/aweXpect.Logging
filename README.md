@@ -26,7 +26,7 @@ fail with:
 ```text title="Failure message"
 Expected that collector
 has logged a record with level Warning at least once,
-but it only logged records with other levels
+but it did not log any such record
 
 Records:
 [

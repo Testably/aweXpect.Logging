@@ -24,6 +24,14 @@ internal static class Checks
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
 					.HasLogged(LogLevel.Warning).Twice(),
 				"has logged a record with level Warning exactly twice", "but it logged 1 such record")),
+		new("a collector with a record matching the message pattern passes",
+			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit 3 reached"))
+				.HasLogged().WithMessage("Retry limit * reached").AsWildcard())),
+		new("a collector without a record matching the message regex fails",
+			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
+					.HasLogged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex(),
+				"has logged a record with level Warning and message matching regex \"^Retry [0-9]+$\"",
+				"but it did not log any such record")),
 	];
 
 	private static FakeLogCollector CollectorWith(LogLevel level, string message)

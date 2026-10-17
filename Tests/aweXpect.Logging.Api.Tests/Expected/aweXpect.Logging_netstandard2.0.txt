@@ -3,7 +3,8 @@
 namespace aweXpect.Results
 {
     public sealed class HasLoggedCountResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedCountResult> { }
-    public sealed class HasLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedResult>
+    public sealed class HasLoggedMessageResult : aweXpect.Results.HasLoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions { }
+    public class HasLoggedResult : aweXpect.Results.AndOrResult<Microsoft.Extensions.Logging.Testing.FakeLogCollector?, aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?>, aweXpect.Results.HasLoggedResult>
     {
         public aweXpect.Results.CountTimesResult<aweXpect.Results.HasLoggedCountResult> AtLeast() { }
         public aweXpect.Results.HasLoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
@@ -18,12 +19,15 @@ namespace aweXpect.Results
         public aweXpect.Results.HasLoggedCountResult Never() { }
         public aweXpect.Results.HasLoggedCountResult Once() { }
         public aweXpect.Results.HasLoggedCountResult Twice() { }
+        public aweXpect.Results.HasLoggedMessageResult WithMessage(string expected) { }
     }
 }
 namespace aweXpect
 {
     public static class ThatFakeLogCollector
     {
+        [aweXpect.Core.GuaranteesNotNull]
+        public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
         [aweXpect.Core.GuaranteesNotNull]
         public static aweXpect.Results.HasLoggedResult HasLogged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
     }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Core.Constraints;
 using aweXpect.Core.Extending;
@@ -20,36 +22,56 @@ namespace aweXpect;
 public static partial class ThatFakeLogCollector
 {
 	/// <summary>
+	///     Verifies that the subject has logged a record of any level, by default at least once.
+	/// </summary>
+	[GuaranteesNotNull]
+	public static HasLoggedResult HasLogged(this IThat<FakeLogCollector?> source)
+		=> HasLogged(source, new LogRecordFilter(null));
+
+	/// <summary>
 	///     Verifies that the subject has logged a record with the <paramref name="level" />, by default at least once.
 	/// </summary>
 	[GuaranteesNotNull]
 	public static HasLoggedResult HasLogged(this IThat<FakeLogCollector?> source, LogLevel level)
+		=> HasLogged(source, new LogRecordFilter(level));
+
+	private static HasLoggedResult HasLogged(IThat<FakeLogCollector?> source, LogRecordFilter filter)
 	{
 		Quantifier quantifier = new();
 		return new HasLoggedResult(
-			source.Get().ExpectationBuilder.AddConstraint((Level: level, Quantifier: quantifier),
-				static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Level, state.Quantifier)),
+			source.Get().ExpectationBuilder.AddConstraint((Filter: filter, Quantifier: quantifier),
+				static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier)),
 			source,
+			filter,
 			quantifier);
 	}
 
 	private sealed class HasLoggedConstraint(
 		string it,
 		ExpectationGrammars grammars,
-		LogLevel level,
+		LogRecordFilter filter,
 		Quantifier quantifier)
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
-			IValueConstraint<FakeLogCollector?>
+			IAsyncConstraint<FakeLogCollector?>
 	{
 		private IReadOnlyList<FakeLogRecord> _records = [];
 		private int _matchingCount;
 
-		public ConstraintResult IsMetBy(FakeLogCollector? actual)
+		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, CancellationToken cancellationToken)
 		{
+			filter.ValidateExpected();
 			Actual = actual;
 			// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
 			_records = actual?.GetSnapshot() ?? [];
-			_matchingCount = _records.Count(record => record.Level == level);
+			_matchingCount = 0;
+			foreach (FakeLogRecord record in _records)
+			{
+				if (await filter.Matches(record))
+				{
+					_matchingCount++;
+				}
+			}
+
 			Outcome = quantifier.Check(_matchingCount, true) == true ? Outcome.Success : Outcome.Failure;
 			return this;
 		}
@@ -89,8 +111,7 @@ public static partial class ThatFakeLogCollector
 			stringBuilder.Append(hasNot
 					? Grammars.Verb("has not logged", "have not logged")
 					: Grammars.Verb("has logged", "have logged"))
-				.Append(" a record with level ");
-			Formatter.Format(stringBuilder, level);
+				.Append(' ').Append(filter);
 			if (times is not null)
 			{
 				stringBuilder.Append(' ').Append(hasNot ? times.Substring(not.Length) : times);
@@ -106,7 +127,7 @@ public static partial class ThatFakeLogCollector
 			}
 			else if (_matchingCount == 0)
 			{
-				stringBuilder.Append(" only logged records with other levels");
+				stringBuilder.Append(" did not log any such record");
 			}
 			else
 			{

@@ -15,9 +15,10 @@ namespace aweXpect.Results;
 ///     <see cref="Quantifier" />, because the <see cref="QuantifierExtensions" /> would return this type again, while a
 ///     quantified result must be a <see cref="HasLoggedCountResult" /> that only offers the options still applying to it.
 /// </remarks>
-public sealed class HasLoggedResult
+public class HasLoggedResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, HasLoggedResult>
 {
+	private readonly LogRecordFilter _filter;
 	private readonly Quantifier _quantifier;
 	private readonly IThat<FakeLogCollector?> _returnValue;
 
@@ -25,10 +26,11 @@ public sealed class HasLoggedResult
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal HasLoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		Quantifier quantifier)
+		LogRecordFilter filter, Quantifier quantifier)
 		: base(expectationBuilder, returnValue)
 	{
 		_returnValue = returnValue;
+		_filter = filter;
 		_quantifier = quantifier;
 	}
 
@@ -128,6 +130,16 @@ public sealed class HasLoggedResult
 	/// </summary>
 	public HasLoggedCountResult Twice()
 		=> Exactly(2);
+
+	/// <summary>
+	///     Only counts records whose message is equal to the <paramref name="expected" /> message.
+	/// </summary>
+	/// <remarks>
+	///     The match type and the comparison can be changed on the result, e.g. with <c>AsWildcard()</c> or
+	///     <c>IgnoringCase()</c>.
+	/// </remarks>
+	public HasLoggedMessageResult WithMessage(string expected)
+		=> new(ExpectationBuilder, _returnValue, _filter, _quantifier, _filter.AddMessage(expected));
 
 	private HasLoggedCountResult Quantified()
 		=> new(ExpectationBuilder, _returnValue);

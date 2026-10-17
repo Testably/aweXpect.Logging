@@ -26,7 +26,7 @@ The log level must match exactly, so a record with the level `Error` does not sa
 ```text title="Failure message"
 Expected that collector
 has logged a record with level Warning at least once,
-but it only logged records with other levels
+but it did not log any such record
 
 Records:
 [
@@ -45,6 +45,40 @@ but it did not log any record
 
 The records are read once, when the expectation is evaluated, so a record that is logged afterwards is neither
 considered nor listed.
+
+Without a log level, a record of any level is enough:
+
+```csharp
+await Expect.That(collector).HasLogged();
+```
+
+## Message
+
+You can additionally verify the message of the record:
+
+```csharp
+logger.LogWarning("Retry limit 3 reached");
+
+await Expect.That(collector).HasLogged(LogLevel.Warning).WithMessage("Retry limit 3 reached");
+await Expect.That(collector).HasLogged().WithMessage("Retry limit * reached").AsWildcard();
+```
+
+The message must be equal by default. As for other strings, you can change the match type with `AsWildcard()`,
+`AsRegex()`, `AsPrefix()` or `AsSuffix()`, and the comparison e.g. with `IgnoringCase()`. If the message differs,
+the expectation would fail with:
+
+```text title="Failure message"
+Expected that collector
+has logged a record with level Warning and message matching "Retry limit * reached" at least once,
+but it did not log any such record
+
+Records:
+[
+  [Warning] "Connection lost"
+]
+```
+
+If `WithMessage` is specified more than once, the message of a record must match all of them.
 
 ## Quantifiers
 
@@ -76,4 +110,8 @@ Records:
 ]
 ```
 
-Only one quantifier can be specified for each `HasLogged`.
+Only one quantifier can be specified for each `HasLogged`, after the message:
+
+```csharp
+await Expect.That(collector).HasLogged(LogLevel.Warning).WithMessage("Retry *").AsWildcard().Twice();
+```
