@@ -26,7 +26,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	private readonly List<Type> _exceptionTypes = [];
 	private readonly List<string> _messageTemplates = [];
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
-	private readonly List<(string Name, string? Value)> _properties = [];
+	private readonly List<PropertyCondition> _properties = [];
 	private bool _orHigher;
 
 	public void AddCategory(string category)
@@ -77,8 +77,12 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	public void AddMessageTemplate(string expected)
 		=> _messageTemplates.Add(expected);
 
-	public void AddProperty(string name, string? value)
-		=> _properties.Add((name, value));
+	public PropertyCondition AddProperty(string name)
+	{
+		PropertyCondition property = new(name);
+		_properties.Add(property);
+		return property;
+	}
 
 	/// <summary>
 	///     The details of the <paramref name="record" /> that are compared beyond its level, message and exception, so
@@ -133,6 +137,14 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		{
 			options.ValidateExpected(expected);
 		}
+
+		foreach (PropertyCondition property in _properties)
+		{
+			if (property.Value is { } value)
+			{
+				value.Options.ValidateExpected(value.Expected);
+			}
+		}
 	}
 
 	public async ValueTask<bool> Matches(FakeLogRecord record)
@@ -152,7 +164,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		if ((_messageTemplates.Count > 0 || _properties.Count > 0) &&
 		    (GetStructuredState(record) is not { } state ||
 		     _messageTemplates.Any(template => !HasValue(state, OriginalFormat, template)) ||
-		     _properties.Any(property => !HasValue(state, property.Name, property.Value))))
+		     !await HasMatchingProperties(state)))
 		{
 			return false;
 		}
@@ -204,9 +216,15 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"event ID {eventId}");
 		}
 
-		foreach ((string name, string? value) in _properties)
+		foreach (PropertyCondition property in _properties)
 		{
-			conditions.Add($"property {name} equal to {Formatter.Format(value)}");
+			string condition = $"property {property.Name}";
+			if (property.Value is { } value)
+			{
+				condition += $" with value {value.Options.GetExpectation(value.Expected, ExpectationGrammars.None)}";
+			}
+
+			conditions.Add(condition);
 		}
 
 		return conditions.Count == 0 ? "a record" : $"a record with {string.Join(" and ", conditions)}";
@@ -236,9 +254,47 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	private static IReadOnlyList<KeyValuePair<string, string?>>? GetStructuredState(FakeLogRecord record)
 		=> record.State as IReadOnlyList<KeyValuePair<string, string?>>;
 
+	private async ValueTask<bool> HasMatchingProperties(IReadOnlyList<KeyValuePair<string, string?>> state)
+	{
+		foreach (PropertyCondition property in _properties)
+		{
+			KeyValuePair<string, string?> entry = FindEntry(state, property.Name);
+			if (entry.Key is null ||
+			    (property.Value is { } value && !await value.Options.AreConsideredEqual(entry.Value, value.Expected)))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	private static bool HasValue(IReadOnlyList<KeyValuePair<string, string?>> state, string key, string? expected)
 	{
 		KeyValuePair<string, string?> entry = FindEntry(state, key);
 		return entry.Key is not null && string.Equals(entry.Value, expected, StringComparison.Ordinal);
+	}
+
+	/// <summary>
+	///     A property that a record must have, optionally with a matching value.
+	/// </summary>
+	internal sealed class PropertyCondition(string name)
+	{
+		public string Name { get; } = name;
+
+		public (string? Expected, StringEqualityOptions Options)? Value { get; private set; }
+
+		/// <exception cref="InvalidOperationException">The value is already specified.</exception>
+		public StringEqualityOptions WithValue(string? expected)
+		{
+			if (Value is not null)
+			{
+				throw new InvalidOperationException($"{nameof(WithValue)} cannot be specified more than once.");
+			}
+
+			StringEqualityOptions options = new(nameof(expected));
+			Value = (expected, options);
+			return options;
+		}
 	}
 }

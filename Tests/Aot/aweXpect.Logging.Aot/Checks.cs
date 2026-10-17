@@ -102,11 +102,12 @@ internal static partial class Checks
 				"has logged a record with event ID 1001", "  [Warning] \"Retry limit reached\" (event ID ")),
 		new("a collector with a record of the property and template passes",
 			() => ShouldPass(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-				.HasLogged().WithProperty("Message", "Retry limit reached").WithMessageTemplate("{Message}"))),
+				.HasLogged().WithProperty("Message").WithValue("Retry limit *").AsWildcard()
+				.WithMessageTemplate("{Message}"))),
 		new("a collector without a record of the property fails and lists the property",
 			() => ShouldFail(async () => await That(CollectorWith(LogLevel.Warning, "Retry limit reached"))
-					.HasLogged().WithProperty("Attempt", "3"),
-				"has logged a record with property Attempt equal to \"3\"",
+					.HasLogged().WithProperty("Attempt").WithValue("3"),
+				"has logged a record with property Attempt with value equal to \"3\"",
 				"  [Warning] \"Retry limit reached\" (no property Attempt)")),
 	];
 

@@ -18,12 +18,12 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).HasLogged()
 						.WithMessageTemplate("Retry {Attempt} of {MaxAttempts}")
-						.WithProperty("Attempt", "3");
+						.WithProperty("Attempt").WithValue("3");
 
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with message template equal to "Retry {Attempt} of {MaxAttempts}" and property Attempt equal to "3" at least once,
+					             has logged a record with message template equal to "Retry {Attempt} of {MaxAttempts}" and property Attempt with value equal to "3" at least once,
 					             but it did not log any such record
 
 					             Records:

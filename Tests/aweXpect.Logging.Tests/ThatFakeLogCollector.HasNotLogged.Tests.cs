@@ -338,9 +338,36 @@ public sealed partial class ThatFakeLogCollector
 				LogPaymentRetried(new FakeLogger(subject), 3, null);
 
 				async Task Act()
-					=> await That(subject).HasNotLogged(LogLevel.Warning).WithProperty("Attempt", "5");
+					=> await That(subject).HasNotLogged(LogLevel.Warning).WithProperty("Attempt").WithValue("5");
 
 				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task WithProperty_WhenPropertyWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).HasNotLogged().WithProperty("Attempt");
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has not logged a record with property Attempt,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (property Attempt "3")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (property Attempt "3")
+					             ]
+					             """);
 			}
 
 			[Fact]

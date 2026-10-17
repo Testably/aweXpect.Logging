@@ -103,19 +103,4 @@ public abstract class LogRecordFilterResult<TSelf>
 		Filter.AddMessageTemplate(expected);
 		return (TSelf)this;
 	}
-
-	/// <summary>
-	///     Only considers records with a property <paramref name="name" /> whose value is equal to the
-	///     <paramref name="value" />.
-	/// </summary>
-	/// <remarks>
-	///     The <see cref="FakeLogger" /> stores the values of the properties as strings in the invariant culture, e.g.
-	///     <c>"1.5"</c> for the <see cref="double" /> 1.5, so the <paramref name="value" /> is compared with this
-	///     string.
-	/// </remarks>
-	public TSelf WithProperty(string name, string? value)
-	{
-		Filter.AddProperty(name, value);
-		return (TSelf)this;
-	}
 }

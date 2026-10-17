@@ -1,4 +1,5 @@
 using System.Globalization;
+using aweXpect.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 
@@ -11,18 +12,19 @@ public sealed partial class ThatFakeLogCollector
 		public sealed class WithPropertyTests
 		{
 			[Fact]
-			public async Task WhenNegated_AndPropertyMatches_ShouldFail()
+			public async Task WhenNegated_AndValueMatches_ShouldFail()
 			{
 				FakeLogCollector subject = new();
 				LogRetry(new FakeLogger(subject), 3, 5, null);
 
 				async Task Act()
-					=> await That(subject).DoesNotComplyWith(it => it.HasLogged().WithProperty("Attempt", "3"));
+					=> await That(subject).DoesNotComplyWith(it
+						=> it.HasLogged().WithProperty("Attempt").WithValue("3"));
 
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has not logged a record with property Attempt equal to "3",
+					             has not logged a record with property Attempt with value equal to "3",
 					             but it logged 1 such record
 
 					             Matching records:
@@ -38,7 +40,102 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
-			public async Task WhenPropertyHasOtherValue_ShouldFail()
+			public async Task WhenOptionIsSpecified_ShouldIncludeItInTheExpectation()
+			{
+				FakeLogCollector subject = new();
+				LogOrder(new FakeLogger(subject), "INV-42", null);
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithProperty("OrderId").WithValue("ord-*").AsWildcard()
+						.IgnoringCase();
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with property OrderId with value matching "ord-*" ignoring case at least once,
+					             but it did not log any such record
+
+					             Records:
+					             [
+					               [Information] "Order INV-42" (property OrderId "INV-42")
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task WhenPatternIsInvalid_ShouldThrowArgumentException()
+			{
+				FakeLogCollector subject = new();
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithProperty("OrderId").WithValue("(").AsRegex();
+
+				await That(Act).Throws<ArgumentException>()
+					.Because("an unusable pattern is rejected even when no record is compared with it");
+			}
+
+			[Fact]
+			public async Task WhenPropertyExists_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				LogRetry(new FakeLogger(subject), 3, 5, null);
+
+				async Task Act()
+					=> await That(subject).HasLogged(LogLevel.Warning).WithProperty("Attempt");
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Fact]
+			public async Task WhenPropertyIsMissing_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogRetry(new FakeLogger(subject), 3, 5, null);
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithProperty("OrderId");
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with property OrderId at least once,
+					             but it did not log any such record
+
+					             Records:
+					             [
+					               [Warning] "Retry 3 of 5" (no property OrderId)
+					             ]
+					             """);
+			}
+
+			[Fact]
+			public async Task WhenStateIsNotStructured_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				CustomState state = new();
+				EventId eventId = new(7);
+				logger.Log(LogLevel.Information, eventId, state, null, static (_, _) => "Custom state");
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithProperty("Attempt");
+
+				await That(Act).Throws<XunitException>()
+					.WithMessage("""
+					             Expected that subject
+					             has logged a record with property Attempt at least once,
+					             but it did not log any such record
+
+					             Records:
+					             [
+					               [Information] "Custom state" (no structured state)
+					             ]
+					             """)
+					.Because("a custom state object has no properties to compare");
+			}
+
+			[Fact]
+			public async Task WhenValueDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = new();
 				FakeLogger logger = new(subject);
@@ -47,13 +144,13 @@ public sealed partial class ThatFakeLogCollector
 
 				async Task Act()
 					=> await That(subject).HasLogged(LogLevel.Warning)
-						.WithProperty("Attempt", "3")
-						.WithProperty("MaxAttempts", "5");
+						.WithProperty("Attempt").WithValue("3")
+						.WithProperty("MaxAttempts").WithValue("5");
 
 				await That(Act).Throws<XunitException>()
 					.WithMessage("""
 					             Expected that subject
-					             has logged a record with level Warning and property Attempt equal to "3" and property MaxAttempts equal to "5" at least once,
+					             has logged a record with level Warning and property Attempt with value equal to "3" and property MaxAttempts with value equal to "5" at least once,
 					             but it did not log any such record
 
 					             Records:
@@ -66,55 +163,21 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Fact]
-			public async Task WhenPropertyHasValue_ShouldSucceed()
+			public async Task WhenValueIsNull_ShouldMatchNull()
 			{
 				FakeLogCollector subject = new();
 				FakeLogger logger = new(subject);
-				LogRetry(logger, 2, 5, null);
-				LogRetry(logger, 3, 5, null);
+				LogOrder(logger, "ORD-42", null);
+				LogOrder(logger, null, null);
 
 				async Task Act()
-					=> await That(subject).HasLogged(LogLevel.Warning).WithProperty("Attempt", "3").Once();
+					=> await That(subject).HasLogged().WithProperty("OrderId").WithValue(null).Once();
 
 				await That(Act).DoesNotThrow();
 			}
 
 			[Fact]
-			public async Task WhenPropertyIsMissing_ShouldFail()
-			{
-				FakeLogCollector subject = new();
-				LogRetry(new FakeLogger(subject), 3, 5, null);
-
-				async Task Act()
-					=> await That(subject).HasLogged().WithProperty("OrderId", "42");
-
-				await That(Act).Throws<XunitException>()
-					.WithMessage("""
-					             Expected that subject
-					             has logged a record with property OrderId equal to "42" at least once,
-					             but it did not log any such record
-
-					             Records:
-					             [
-					               [Warning] "Retry 3 of 5" (no property OrderId)
-					             ]
-					             """);
-			}
-
-			[Fact]
-			public async Task WhenPropertyValueIsNull_ShouldMatchNull()
-			{
-				FakeLogCollector subject = new();
-				LogOrder(new FakeLogger(subject), null, null);
-
-				async Task Act()
-					=> await That(subject).HasLogged().WithProperty("OrderId", null);
-
-				await That(Act).DoesNotThrow();
-			}
-
-			[Fact]
-			public async Task WhenPropertyValueIsNumber_ShouldCompareItInTheInvariantCulture()
+			public async Task WhenValueIsNumber_ShouldCompareItInTheInvariantCulture()
 			{
 				FakeLogCollector subject = new();
 				FakeLogger logger = new(subject);
@@ -130,36 +193,54 @@ public sealed partial class ThatFakeLogCollector
 				}
 
 				async Task Act()
-					=> await That(subject).HasLogged().WithProperty("Amount", "1.5");
+					=> await That(subject).HasLogged().WithProperty("Amount").WithValue("1.5");
 
 				await That(Act).DoesNotThrow()
 					.Because("the FakeLogger stores the values in the invariant culture");
 			}
 
 			[Fact]
-			public async Task WhenStateIsNotStructured_ShouldFail()
+			public async Task WhenValueIsSpecifiedTwice_ShouldThrowInvalidOperationException()
+			{
+				FakeLogCollector subject = new();
+
+				async Task Act()
+				{
+					HasLoggedPropertyResult property = That(subject).HasLogged().WithProperty("Attempt");
+					_ = property.WithValue("1");
+					await property.WithValue("2");
+				}
+
+				await That(Act).Throws<InvalidOperationException>()
+					.WithMessage("WithValue cannot be specified more than once.");
+			}
+
+			[Fact]
+			public async Task WhenValueMatches_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
 				FakeLogger logger = new(subject);
-				CustomState state = new();
-				EventId eventId = new(7);
-				logger.Log(LogLevel.Information, eventId, state, null, static (_, _) => "Custom state");
+				LogRetry(logger, 2, 5, null);
+				LogRetry(logger, 3, 5, null);
 
 				async Task Act()
-					=> await That(subject).HasLogged().WithProperty("Attempt", "3");
+					=> await That(subject).HasLogged(LogLevel.Warning).WithProperty("Attempt").WithValue("3").Once();
 
-				await That(Act).Throws<XunitException>()
-					.WithMessage("""
-					             Expected that subject
-					             has logged a record with property Attempt equal to "3" at least once,
-					             but it did not log any such record
+				await That(Act).DoesNotThrow();
+			}
 
-					             Records:
-					             [
-					               [Information] "Custom state" (no structured state)
-					             ]
-					             """)
-					.Because("a custom state object has no properties to compare");
+			[Fact]
+			public async Task WhenValueMatchesThePattern_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				LogOrder(logger, "ORD-42", null);
+				LogOrder(logger, "INV-42", null);
+
+				async Task Act()
+					=> await That(subject).HasLogged().WithProperty("OrderId").WithValue("ORD-*").AsWildcard().Once();
+
+				await That(Act).DoesNotThrow();
 			}
 
 			private static readonly Action<ILogger, double, Exception?> LogCharged =
