@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using aweXpect.Core;
 using aweXpect.Options;
 using Microsoft.Extensions.Logging.Testing;
@@ -11,8 +12,9 @@ namespace aweXpect.Results;
 public sealed class HasLoggedLevelResult : HasLoggedResult
 {
 	internal HasLoggedLevelResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions)
-		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions)
+		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		List<LogRecordFilter> steps)
+		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{
 	}
 

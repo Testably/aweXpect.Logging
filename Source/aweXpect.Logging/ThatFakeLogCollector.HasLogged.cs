@@ -31,8 +31,9 @@ public static partial class ThatFakeLogCollector
 		LogRecordFilter filter = new(null);
 		Quantifier quantifier = new();
 		RepeatedCheckOptions repeatedCheckOptions = new();
-		return new HasLoggedResult(AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions), source,
-			filter, quantifier, repeatedCheckOptions);
+		List<LogRecordFilter> steps = [];
+		return new HasLoggedResult(AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions, steps),
+			source, filter, quantifier, repeatedCheckOptions, steps);
 	}
 
 	/// <summary>
@@ -44,29 +45,40 @@ public static partial class ThatFakeLogCollector
 		LogRecordFilter filter = new(level);
 		Quantifier quantifier = new();
 		RepeatedCheckOptions repeatedCheckOptions = new();
-		return new HasLoggedLevelResult(AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions),
-			source, filter, quantifier, repeatedCheckOptions);
+		List<LogRecordFilter> steps = [];
+		return new HasLoggedLevelResult(
+			AddHasLoggedConstraint(source, filter, quantifier, repeatedCheckOptions, steps), source, filter,
+			quantifier, repeatedCheckOptions, steps);
 	}
 
 	private static ExpectationBuilder AddHasLoggedConstraint(IThat<FakeLogCollector?> source, LogRecordFilter filter,
-		Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions)
+		Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions, List<LogRecordFilter> steps)
 		=> source.Get().ExpectationBuilder.AddConstraint(
-			(Filter: filter, Quantifier: quantifier, RepeatedCheckOptions: repeatedCheckOptions),
+			(Filter: filter, Quantifier: quantifier, RepeatedCheckOptions: repeatedCheckOptions, Steps: steps),
 			static (state, it, grammars) => new HasLoggedConstraint(it, grammars, state.Filter, state.Quantifier,
-				state.RepeatedCheckOptions));
+				state.RepeatedCheckOptions, state.Steps));
 
+	/// <remarks>
+	///     The <paramref name="steps" /> are added by <see cref="HasLoggedResult.Then" /> after the constraint, so it
+	///     verifies the order of the records instead of their amount, as soon as there are any.
+	/// </remarks>
 	private sealed class HasLoggedConstraint(
 		string it,
 		ExpectationGrammars grammars,
 		LogRecordFilter filter,
 		Quantifier quantifier,
-		RepeatedCheckOptions repeatedCheckOptions)
+		RepeatedCheckOptions repeatedCheckOptions,
+		List<LogRecordFilter> steps)
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
 			IAsyncContextConstraint<FakeLogCollector?>
 	{
+		private bool _isMissingStepLogged;
 		private List<FakeLogRecord> _matchingRecords = [];
+		private LogRecordFilter? _missingStep;
 		private List<FakeLogRecord> _notMatchingRecords = [];
 		private IReadOnlyList<FakeLogRecord> _records = [];
+
+		private bool IsOrdered => steps.Count > 0;
 
 		/// <remarks>
 		///     With a timeout, the records are read repeatedly until their amount decides the outcome, as for recorded
@@ -75,7 +87,13 @@ public static partial class ThatFakeLogCollector
 		public async ValueTask<ConstraintResult> IsMetBy(FakeLogCollector? actual, IEvaluationContext context,
 			CancellationToken cancellationToken)
 		{
+			if (IsOrdered && !IsAtLeastOnce())
+			{
+				throw new InvalidOperationException("Then cannot be combined with a quantifier.");
+			}
+
 			filter.ValidateExpected();
+			steps.ForEach(step => step.ValidateExpected());
 			Actual = actual;
 			if (actual is null)
 			{
@@ -87,7 +105,7 @@ public static partial class ThatFakeLogCollector
 			{
 				// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
 				await Read(actual.GetSnapshot());
-				return quantifier.Check(_matchingRecords.Count, false) is not null;
+				return IsOrdered ? _missingStep is null : quantifier.Check(_matchingRecords.Count, false) is not null;
 			}, context);
 			if (repeatedOutcome == Outcome.Undecided)
 			{
@@ -95,8 +113,26 @@ public static partial class ThatFakeLogCollector
 				return this;
 			}
 
-			Outcome = quantifier.Check(_matchingRecords.Count, true) == true ? Outcome.Success : Outcome.Failure;
+			Outcome = IsMetByTheRecords() ? Outcome.Success : Outcome.Failure;
 			return this;
+		}
+
+		/// <summary>
+		///     Whether the quantifier is equivalent to the default, i.e. at least once, which the order of the records
+		///     implies.
+		/// </summary>
+		private bool IsAtLeastOnce()
+			=> quantifier.Check(0, true) != true && quantifier.Check(1, true) == true &&
+			   quantifier.Check(int.MaxValue, true) == true;
+
+		private bool IsMetByTheRecords()
+		{
+			if (IsOrdered)
+			{
+				return _missingStep is null;
+			}
+
+			return quantifier.Check(_matchingRecords.Count, true) == true;
 		}
 
 		private async ValueTask Read(IReadOnlyList<FakeLogRecord> records)
@@ -111,6 +147,52 @@ public static partial class ThatFakeLogCollector
 			_records = records;
 			_matchingRecords = matchingRecords;
 			_notMatchingRecords = notMatchingRecords;
+			if (IsOrdered)
+			{
+				await ReadOrder(records);
+			}
+		}
+
+		/// <summary>
+		///     Determines the first step without a matching record after the one of the previous step.
+		/// </summary>
+		/// <remarks>
+		///     Each step takes the first matching record after the one of the previous step, as a later record could
+		///     only leave fewer records for the following steps.
+		/// </remarks>
+		private async ValueTask ReadOrder(IReadOnlyList<FakeLogRecord> records)
+		{
+			int previousPosition = -1;
+			for (int step = 0; step <= steps.Count; step++)
+			{
+				LogRecordFilter stepFilter = step == 0 ? filter : steps[step - 1];
+				int position = await FindFirst(stepFilter, records, previousPosition + 1);
+				if (position < 0)
+				{
+					_missingStep = stepFilter;
+					_isMissingStepLogged = step > 0 && await FindFirst(stepFilter, records, 0) >= 0;
+					return;
+				}
+
+				previousPosition = position;
+			}
+
+			_missingStep = null;
+			_isMissingStepLogged = false;
+		}
+
+		private static async ValueTask<int> FindFirst(LogRecordFilter stepFilter,
+			IReadOnlyList<FakeLogRecord> records, int start)
+		{
+			for (int position = start; position < records.Count; position++)
+			{
+				if (await stepFilter.Matches(records[position]))
+				{
+					return position;
+				}
+			}
+
+			return -1;
 		}
 
 		/// <remarks>
@@ -119,7 +201,20 @@ public static partial class ThatFakeLogCollector
 		///     it only has a lower bound above one, e.g. <c>AtLeast(2.Times())</c>, because these are the records that
 		///     explain the failure. A negated expectation lists them for its complement.
 		/// </remarks>
+		/// <remarks>
+		///     The order of the records is only shown by all of them, so then no further records are listed.
+		/// </remarks>
 		public override void AppendContexts(ResultContextCollector contexts)
+		{
+			if (!IsOrdered)
+			{
+				AddQuantifierContexts(contexts);
+			}
+
+			AddRecords(contexts, "Records", _records);
+		}
+
+		private void AddQuantifierContexts(ResultContextCollector contexts)
 		{
 			if (IsMet(0) && !IsMet(int.MaxValue))
 			{
@@ -129,8 +224,6 @@ public static partial class ThatFakeLogCollector
 			{
 				AddRecords(contexts, "Not matching records", _notMatchingRecords, int.MaxValue);
 			}
-
-			AddRecords(contexts, "Records", _records);
 		}
 
 		/// <summary>
@@ -144,23 +237,92 @@ public static partial class ThatFakeLogCollector
 		{
 			if (records.Count > 0)
 			{
+				LogRecordFilter[] filters = [filter, ..steps,];
 				contexts.Add(new ResultContext.SyncCallback(title,
-					() => Formatter.Format(records.Select(record => new FormattedRecord(record, filter)).ToArray(),
+					() => Formatter.Format(records.Select(record => new FormattedRecord(record, filters)).ToArray(),
 						FormattingOptions.MultipleLines), priority));
 			}
 		}
 
 		protected override void AppendNormalExpectation(StringBuilder stringBuilder, string? indentation = null)
-			=> AppendExpectation(stringBuilder, false);
+		{
+			if (IsOrdered)
+			{
+				AppendOrderedExpectation(stringBuilder, indentation, " in order");
+			}
+			else
+			{
+				AppendExpectation(stringBuilder, false);
+			}
+		}
 
 		protected override void AppendNormalResult(StringBuilder stringBuilder, string? indentation = null)
-			=> AppendResult(stringBuilder);
+		{
+			if (IsOrdered)
+			{
+				AppendOrderedResult(stringBuilder);
+			}
+			else
+			{
+				AppendResult(stringBuilder);
+			}
+		}
 
 		protected override void AppendNegatedExpectation(StringBuilder stringBuilder, string? indentation = null)
-			=> AppendExpectation(stringBuilder, true);
+		{
+			if (IsOrdered)
+			{
+				AppendOrderedExpectation(stringBuilder, indentation, " not in order");
+			}
+			else
+			{
+				AppendExpectation(stringBuilder, true);
+			}
+		}
 
 		protected override void AppendNegatedResult(StringBuilder stringBuilder, string? indentation = null)
-			=> AppendResult(stringBuilder);
+		{
+			if (IsOrdered)
+			{
+				stringBuilder.Append(It).Append(" did");
+			}
+			else
+			{
+				AppendResult(stringBuilder);
+			}
+		}
+
+		/// <remarks>
+		///     As for the order of interactions in aweXpect.Mockolate, each step is described on its own line, e.g.
+		///     <c>has logged a record with level Information, then</c> and <c>a record with level Warning in order</c>.
+		/// </remarks>
+		private void AppendOrderedExpectation(StringBuilder stringBuilder, string? indentation, string order)
+		{
+			stringBuilder.Append(Grammars.Verb("has logged", "have logged")).Append(' ').Append(filter);
+			foreach (LogRecordFilter step in steps)
+			{
+				stringBuilder.Append(", then").Append(Environment.NewLine).Append(indentation).Append(step);
+			}
+
+			stringBuilder.Append(order).Append(repeatedCheckOptions);
+		}
+
+		private void AppendOrderedResult(StringBuilder stringBuilder)
+		{
+			stringBuilder.Append(It);
+			if (_records.Count == 0)
+			{
+				stringBuilder.Append(" did not log any record");
+			}
+			else if (_isMissingStepLogged)
+			{
+				stringBuilder.Append(" logged ").Append(_missingStep).Append(" too early");
+			}
+			else
+			{
+				stringBuilder.Append(" did not log ").Append(_missingStep).Append(" at all");
+			}
+		}
 
 		/// <remarks>
 		///     A negated quantifier without a complement is rendered as <c>not …</c>, so the negation is moved to the verb,
@@ -204,13 +366,13 @@ public static partial class ThatFakeLogCollector
 
 	/// <summary>
 	///     Lists a record by its level, its message and the type of its exception, if any, and by the further details
-	///     that the <see cref="LogRecordFilter" /> compares, e.g. its category.
+	///     that the <paramref name="filters" /> compare, e.g. its category.
 	/// </summary>
 	/// <remarks>
 	///     A <see cref="FakeLogRecord" /> itself would be listed with all its members, which hides the level and the
 	///     message among details like the timestamp.
 	/// </remarks>
-	private sealed class FormattedRecord(FakeLogRecord record, LogRecordFilter filter)
+	private sealed class FormattedRecord(FakeLogRecord record, LogRecordFilter[] filters)
 	{
 		public override string ToString()
 		{
@@ -220,7 +382,7 @@ public static partial class ThatFakeLogCollector
 				details.Add(Formatter.Format(record.Exception.GetType()));
 			}
 
-			details.AddRange(filter.GetComparedDetails(record));
+			details.AddRange(filters.SelectMany(filter => filter.GetComparedDetails(record)).Distinct());
 			string formattedRecord = $"[{Formatter.Format(record.Level)}] {Formatter.Format(record.Message)}";
 			return details.Count == 0 ? formattedRecord : $"{formattedRecord} ({string.Join(", ", details)})";
 		}

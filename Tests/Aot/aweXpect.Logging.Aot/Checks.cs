@@ -109,6 +109,26 @@ internal static partial class Checks
 					.HasLogged().WithProperty("Attempt").WithValue("3"),
 				"has logged a record with property Attempt with value equal to \"3\"",
 				"  [Warning] \"Retry limit reached\" (no property Attempt)")),
+		new("a collector with records in order passes",
+			() => ShouldPass(async () =>
+			{
+				FakeLogCollector collector = new();
+				FakeLogger logger = new(collector);
+				logger.LogInformation("Starting");
+				logger.LogWarning("Retry 1");
+				await That(collector).HasLogged(LogLevel.Information)
+					.Then(r => r.HasLogged(LogLevel.Warning).WithMessage("Retry *").AsWildcard());
+			})),
+		new("a collector with a record logged too early fails",
+			() => ShouldFail(async () =>
+				{
+					FakeLogCollector collector = new();
+					FakeLogger logger = new(collector);
+					logger.LogWarning("Retry 1");
+					logger.LogInformation("Starting");
+					await That(collector).HasLogged(LogLevel.Information).Then(r => r.HasLogged(LogLevel.Warning));
+				},
+				"a record with level Warning in order", "but it logged a record with level Warning too early")),
 	];
 
 	private sealed class Repository<T>;

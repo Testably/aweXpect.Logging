@@ -17,7 +17,7 @@ public static partial class ThatFakeLogCollector
 		LogRecordFilter filter = new(null);
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		return new HasNotLoggedResult(
-			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions), source, filter,
+			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions, []), source, filter,
 			repeatedCheckOptions);
 	}
 
@@ -30,7 +30,7 @@ public static partial class ThatFakeLogCollector
 		LogRecordFilter filter = new(level);
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		return new HasNotLoggedLevelResult(
-			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions), source, filter,
+			AddHasLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions, []), source, filter,
 			repeatedCheckOptions);
 	}
 }
