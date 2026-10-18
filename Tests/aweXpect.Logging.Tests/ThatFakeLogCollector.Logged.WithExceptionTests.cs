@@ -10,7 +10,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithExceptionTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithMessageAndQuantifier_ShouldOnlyCountMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -25,7 +25,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithException<TimeoutException>()
 						.Twice();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Error or higher and message matching "Retry *" and exception of type TimeoutException exactly twice,
@@ -40,7 +40,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenExceptionIsDerived_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -52,7 +52,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenExceptionIsOfOtherType_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -61,7 +61,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Error).WithException<TimeoutException>();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Error and exception of type TimeoutException at least once,
@@ -74,7 +74,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenExceptionIsOfType_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -86,7 +86,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndExceptionMatches_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -96,7 +96,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).DoesNotComplyWith(it
 						=> it.Logged(LogLevel.Error).WithException<TimeoutException>());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Error and exception of type TimeoutException,
@@ -114,7 +114,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordHasNoException_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -123,7 +123,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Error).WithException<Exception>();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Error and exception of type Exception at least once,
@@ -136,7 +136,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenSpecifiedTwice_ShouldRequireBothTypes()
 			{
 				FakeLogCollector subject = new();
@@ -154,7 +154,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WithoutLevel_ShouldOnlyCompareTheException()
 			{
 				FakeLogCollector subject = new();

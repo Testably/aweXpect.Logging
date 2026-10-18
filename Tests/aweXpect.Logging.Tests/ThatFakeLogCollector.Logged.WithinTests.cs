@@ -3,6 +3,7 @@ using System.Threading;
 using aweXpect.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
+using TUnit.Core.Exceptions;
 
 namespace aweXpect.Logging.Tests;
 
@@ -12,7 +13,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithinTests
 		{
-			[Fact]
+			[Test]
 			public async Task CheckEvery_AfterQuantifierOrThen_ShouldBeAvailable()
 			{
 				FakeLogCollector subject = new();
@@ -33,7 +34,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task CheckEvery_ShouldKeepTheFiltersAndQuantifiersAvailable()
 			{
 				FakeLogCollector subject = new();
@@ -48,7 +49,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task CheckEvery_ShouldReadTheRecordsInTheInterval()
 			{
 				FakeLogCollector subject = new();
@@ -65,7 +66,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task CheckEvery_WhenIntervalIsNotPositive_ShouldThrowArgumentOutOfRangeException()
 			{
 				FakeLogCollector subject = new();
@@ -78,7 +79,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithParamName("interval");
 			}
 
-			[Fact]
+			[Test]
 			public async Task Never_WhenNothingIsLogged_ShouldWaitForTheFullTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -92,7 +93,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("a record could still be logged until the timeout");
 			}
 
-			[Fact]
+			[Test]
 			public async Task Never_WhenRecordIsLoggedDuringTheTimeout_ShouldFailBeforeTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -104,7 +105,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).Never().Within(TimeSpan.FromSeconds(30));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning within 0:30,
@@ -126,7 +127,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task Once_WhenRecordIsLoggedDuringTheTimeout_ShouldSucceedAfterTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -142,7 +143,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenCanceled_ShouldNotBeDecided()
 			{
 				FakeLogCollector subject = new();
@@ -152,7 +153,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).Logged(LogLevel.Warning).Within(TimeSpan.FromSeconds(30))
 						.WithCancellation(cancellation.Token);
 
-				await That(Act).Throws<InconclusiveException>()
+				await That(Act).Throws<InconclusiveTestException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least once within 0:30,
@@ -161,7 +162,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the records logged until the cancellation do not decide the outcome");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndRecordIsLoggedDuringTheTimeout_ShouldFailBeforeTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -172,7 +173,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).DoesNotComplyWith(it
 						=> it.Logged(LogLevel.Warning).Within(TimeSpan.FromSeconds(30)));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning within 0:30,
@@ -183,7 +184,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNothingIsLogged_ShouldFailAfterTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -191,7 +192,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).Within(TimeSpan.FromMilliseconds(100));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least once within 0:00.100,
@@ -199,7 +200,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordIsLoggedDuringTheTimeout_ShouldSucceedBeforeTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -215,7 +216,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenSpecifiedTwice_ShouldThrowInvalidOperationException()
 			{
 				FakeLogCollector subject = new();
@@ -229,7 +230,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage("Within cannot be specified more than once.");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenTimeoutIsNegative_ShouldThrowArgumentOutOfRangeException()
 			{
 				FakeLogCollector subject = new();

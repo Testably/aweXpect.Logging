@@ -16,7 +16,7 @@ Correctness is a must. The other goals are strong defaults and win in this order
 ## Project constraints
 
 - **Dependency floor**: the library references only `aweXpect.Core` and `Microsoft.Extensions.Diagnostics.Testing`. Never reference the `aweXpect` package from `Source/`; it is for tests, the AOT smoke project and benchmarks. The `aweXpect.Core` version in `Directory.Packages.props` is the minimum every consumer gets, so raise it only when a new Core API is needed and say so in the PR.
-- **Public API**: every public member needs XML docs. Entry points are extension methods on `IThat<FakeLogCollector?>` in `ThatFakeLogCollector.*.cs`, mirrored on `IThat<FakeLogger?>` in `ThatFakeLogger.cs`, and marked `[GuaranteesNotNull]`. Result constructors stay `internal`, so later filters are not breaking changes. Any surface change shows up in `Tests/aweXpect.Logging.Api.Tests/Expected/*.txt` and is reviewed there.
+- **Public API**: every public member needs XML docs. Entry points are extension methods on `IThat<FakeLogCollector?>` in `ThatFakeLogCollector.*.cs`, mirrored on `IThat<FakeLogger?>` in `ThatFakeLogger.cs`, and marked `[GuaranteesNotNull]`. Result constructors stay `internal`, so later filters are not breaking changes. Any surface change shows up in the `*.awexpect-snapshot.txt` files of `Tests/aweXpect.Logging.Api.Tests` and is reviewed there.
 - **AOT and trimming**: the library is `IsTrimmable` and `IsAotCompatible` from net8.0; the analyzers only run for net10.0, because the .NET 8 analyzers predate feature guards. Do not add unguarded reflection. The AOT smoke project treats every trimmer or ILC warning as an error.
 - **Language features**: the library compiles for netstandard2.0 and the tests run on net48, with only the `Nullable` and `IsExternalInit` polyfills. Features that need newer runtime types (e.g. `System.Index`/`System.Range`, so `^1`, `..` slices and list patterns) do not compile there. Build all target frameworks before pushing.
 - **Failure messages are the product**: tests pin the full message with `.WithMessage("""...""")`, and the docs show the same messages.
@@ -26,12 +26,13 @@ Correctness is a must. The other goals are strong defaults and win in this order
 - `.editorconfig`: tabs, explicit types instead of `var`, CRLF in the working tree. Git stores LF (`* text=auto`).
 - Some `.cs` files have a UTF-8 BOM, most do not; keep each file as it is. PowerShell rewrites (`Set-Content`, `Out-File`) and `sed -i` change the BOM or line endings, and the multi-line raw string literals in the tests are sensitive to that. Use an edit tool and check `git diff` for a stray U+FEFF.
 - No em-dashes in docs, XML docs or comments. Keep comments rare and about the why; XML `<remarks>` are preferred.
-- Tests use xUnit v2 and nested partial classes, one file each: `ThatFakeLogCollector.Logged.WithCategoryTests.cs` holds `ThatFakeLogCollector.Logged.WithCategoryTests`. Methods are named `Member_WhenCondition_ShouldOutcome` and sorted alphabetically. Put reasons into `.Because(...)`, not comments.
+- Tests use TUnit and nested partial classes, one file each: `ThatFakeLogCollector.Logged.WithCategoryTests.cs` holds `ThatFakeLogCollector.Logged.WithCategoryTests`. Methods are named `Member_WhenCondition_ShouldOutcome` and sorted alphabetically. Put reasons into `.Because(...)`, not comments.
 
 ## Validation
 
-- Unit tests: `dotnet test Tests/aweXpect.Logging.Tests` (net8.0, net10.0 and, on Windows, net48). Narrow with `-f net10.0 --filter "FullyQualifiedName~WithCategoryTests"` while iterating.
-- Public API: `dotnet test Tests/aweXpect.Logging.Api.Tests`. For an intentional change, run it with `--filter "Name=AcceptApiChanges"` and commit the updated `Expected/` files.
+- All tests use TUnit on the Microsoft.Testing.Platform, which `global.json` opts into, so `dotnet test` runs every test project and target framework.
+- Unit tests: `dotnet test --project Tests/aweXpect.Logging.Tests` (net8.0, net10.0 and, on Windows, net48). Narrow with `-f net10.0 --treenode-filter "/*/*/*WithCategoryTests/*"` while iterating.
+- Public API: `dotnet test --project Tests/aweXpect.Logging.Api.Tests`. For an intentional change, run the explicit test with `dotnet test --project Tests/aweXpect.Logging.Api.Tests --treenode-filter "/*/*/ApiApprovalTests/AcceptApiChanges"` and commit the updated `*.awexpect-snapshot.txt` files, never the `*.awexpect-snapshot.pending.*` ones.
 - AOT: `dotnet run --project Tests/Aot/aweXpect.Logging.Aot` runs the checks under the JIT; `./build.ps1 AotSmokeTests` also publishes them with Native AOT. Add a check to `Checks.cs` for a new expectation.
 - Never run `./build.ps1` without a target: the defaults are `ApiChecks`, `Benchmarks` and `CodeAnalysis` (needs a Sonar token).
 - Code samples in `README.md` and `Docs/pages/` are not compiled; keep them in line with the tests by hand. New expectations belong in the README overview and in `Docs/pages/`.

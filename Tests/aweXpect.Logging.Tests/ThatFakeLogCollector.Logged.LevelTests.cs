@@ -11,8 +11,8 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class LevelTests
 		{
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenOnlyOtherLevelsWereLogged_ShouldFail(LogLevel level)
 			{
 				FakeLogCollector subject = new();
@@ -25,7 +25,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await LoggedWithLevel(That(subject), level);
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage($"""
 					              Expected that subject
 					              logged a record with level {level} at least once,
@@ -34,8 +34,8 @@ public sealed partial class ThatFakeLogCollector
 					              """).AsWildcard();
 			}
 
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenRecordWithLevelWasLogged_ShouldSucceed(LogLevel level)
 			{
 				FakeLogCollector subject = new();
@@ -47,8 +47,8 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenStepOnlyMatchesOtherLevels_ShouldFail(LogLevel level)
 			{
 				FakeLogCollector subject = new();
@@ -63,7 +63,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).Logged().WithMessage("Starting")
 						.Then(r => StepWithLevel(r, level));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage($"""
 					              *
 					              a record with level {level} in order,
@@ -71,8 +71,8 @@ public sealed partial class ThatFakeLogCollector
 					              """).AsWildcard();
 			}
 
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenStepRecordWithLevelWasLogged_ShouldSucceed(LogLevel level)
 			{
 				FakeLogCollector subject = new();

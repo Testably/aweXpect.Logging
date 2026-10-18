@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithEventIdTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithOtherFilters_ShouldListAllComparedDetails()
 			{
 				FakeLogCollector subject = new();
@@ -24,7 +24,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithEventId(1001)
 						.WithException<TimeoutException>();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and exception of type TimeoutException and category "MyApp.Orders" and event ID 1001 at least once,
@@ -37,7 +37,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenEventIdDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -48,7 +48,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithEventId(1003);
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with event ID 1003 at least once,
@@ -62,7 +62,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenEventIdMatches_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -76,7 +76,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndEventIdMatches_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -85,7 +85,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).DoesNotComplyWith(it => it.Logged().WithEventId(1001));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with event ID 1001,

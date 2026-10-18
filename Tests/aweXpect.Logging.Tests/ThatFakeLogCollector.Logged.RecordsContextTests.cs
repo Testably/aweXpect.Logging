@@ -10,7 +10,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class RecordsContextTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenManyRecordsMatch_ShouldListOnlyTheFirstMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -24,7 +24,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).Never();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning,
@@ -62,7 +62,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegatedQuantifierHasLowerBoundAboveOne_ShouldListNotMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -73,7 +73,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).DoesNotComplyWith(it => it.Logged(LogLevel.Warning).AtMost(1.Times()));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning more than once,
@@ -93,7 +93,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the negation of an upper bound is a lower bound");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegatedQuantifierHasNoComplement_ShouldOnlyListTheRecords()
 			{
 				FakeLogCollector subject = new();
@@ -105,7 +105,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject)
 						.DoesNotComplyWith(it => it.Logged(LogLevel.Warning).Between(1).And(2.Times()));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning between 1 and 2 times,
@@ -119,7 +119,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenQuantifierHasBothBounds_ShouldOnlyListTheRecords()
 			{
 				FakeLogCollector subject = new();
@@ -131,7 +131,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).Once();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning exactly once,
@@ -147,7 +147,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("an exact amount can fail in both directions, so neither matching nor not matching records explain the failure");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenQuantifierHasLowerBoundAboveOne_AndAllRecordsMatch_ShouldOnlyListTheRecords()
 			{
 				FakeLogCollector subject = new();
@@ -156,7 +156,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).AtLeast(2.Times());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least twice,
@@ -169,7 +169,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenQuantifierHasLowerBoundAboveOne_ShouldListNotMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -181,7 +181,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).AtLeast(2.Times());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least twice,
@@ -202,7 +202,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenQuantifierHasUpperBound_ShouldListMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -214,7 +214,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).AtMost(1.Times());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at most once,

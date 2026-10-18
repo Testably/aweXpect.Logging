@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithMessageTemplateTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithProperty_ShouldListBothDetails()
 			{
 				FakeLogCollector subject = new();
@@ -20,7 +20,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithMessageTemplate("Retry {Attempt} of {MaxAttempts}")
 						.WithProperty("Attempt").WithValue("3");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with message template equal to "Retry {Attempt} of {MaxAttempts}" and property Attempt with value equal to "3" at least once,
@@ -33,7 +33,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStateIsNotStructured_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -45,7 +45,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithMessageTemplate("Custom state");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with message template equal to "Custom state" at least once,
@@ -59,7 +59,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("a custom state object has no message template");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenTemplateDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -70,7 +70,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithMessageTemplate("Retry {Attempt}");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with message template equal to "Retry {Attempt}" at least once,
@@ -85,7 +85,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the template is compared exactly");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenTemplateMatches_ShouldIgnoreTheValues()
 			{
 				FakeLogCollector subject = new();

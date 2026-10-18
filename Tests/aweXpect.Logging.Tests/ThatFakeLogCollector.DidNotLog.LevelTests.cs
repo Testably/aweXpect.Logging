@@ -11,8 +11,8 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class LevelTests
 		{
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenOnlyOtherLevelsWereLogged_ShouldSucceed(LogLevel level)
 			{
 				FakeLogCollector subject = new();
@@ -28,8 +28,8 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenRecordWithLevelWasLogged_ShouldFail(LogLevel level)
 			{
 				FakeLogCollector subject = new();
@@ -38,7 +38,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await DidNotLogWithLevel(That(subject), level).WithMessage("Retry limit reached");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage($"""
 					              Expected that subject
 					              did not log a record with level {level} and message equal to "Retry limit reached",
