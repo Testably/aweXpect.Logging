@@ -291,6 +291,167 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Test]
+			public async Task WithMessageTemplate_AsPrefix_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("Payment retried").AsPrefix();
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             did not log a record with message template "Payment retried" as prefix,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsRegex_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("^Payment .+ times$").AsRegex();
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             did not log a record with message template "^Payment .+ times$" as regex,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsSuffix_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("{Attempt} times").AsSuffix();
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             did not log a record with message template "{Attempt} times" as suffix,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsWildcard_WhenOnlyOtherTemplatesWereLogged_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("Order * times").AsWildcard();
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsWildcard_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("Payment * times").AsWildcard();
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             did not log a record with message template "Payment * times" as wildcard,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_IgnoringCase_WhenTemplateWasLogged_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("payment retried {attempt} times")
+						.IgnoringCase();
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             did not log a record with message template "payment retried {attempt} times" ignoring case,
+					             but it logged 1 such record
+
+					             Matching records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+
+					             Records:
+					             [
+					               [Warning] "Payment retried 3 times" (message template "Payment retried {Attempt} times")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_WhenTemplateDiffersInCase_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				LogPaymentRetried(new FakeLogger(subject), 3, null);
+
+				async Task Act()
+					=> await That(subject).DidNotLog().WithMessageTemplate("payment retried {attempt} times");
+
+				await That(Act).DoesNotThrow()
+					.Because("the template is compared exactly by default");
+			}
+
+			[Test]
 			public async Task WithMessageTemplate_WhenTemplateWasLogged_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -302,7 +463,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
-					             did not log a record with message template equal to "Payment retried {Attempt} times",
+					             did not log a record with message template "Payment retried {Attempt} times",
 					             but it logged 1 such record
 
 					             Matching records:

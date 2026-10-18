@@ -198,6 +198,19 @@ public class LoggedResult : LogRecordFilterResult<LoggedResult>
 			Filter.AddMessage(expected));
 
 	/// <summary>
+	///     Only counts records whose message template, e.g. <c>Retry {Attempt} of {MaxAttempts}</c>, is equal to the
+	///     <paramref name="expected" /> template.
+	/// </summary>
+	/// <remarks>
+	///     Unlike the message, the template does not depend on the values that were logged, so that it identifies the
+	///     statement that logged the record. The match type and the comparison can be changed on the result, e.g. with
+	///     <c>AsPrefix()</c> or <c>AsWildcard()</c>.
+	/// </remarks>
+	public LoggedMessageTemplateResult WithMessageTemplate(string expected)
+		=> new(ExpectationBuilder, ReturnValue, Filter, _quantifier, RepeatedCheckOptions, _steps,
+			Filter.AddMessageTemplate(expected));
+
+	/// <summary>
 	///     Only counts records with a property <paramref name="name" />, e.g. <c>Attempt</c> for the message template
 	///     <c>Retry {Attempt}</c>.
 	/// </summary>

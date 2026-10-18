@@ -178,8 +178,15 @@ e.g. with `AsWildcard()`, and the comparison, e.g. with `IgnoringCase()`:
 await Expect.That(collector).Logged().WithProperty("OrderId").WithValue("ORD-*").AsWildcard();
 ```
 
-The template does not depend on the logged values, so it identifies the statement that logged a record, and is
-compared exactly. The failure message lists the compared template and properties for each record:
+The template does not depend on the logged values, so it identifies the statement that logged a record. It must be
+equal by default, and as for the message, you can change the match type, e.g. with `AsPrefix()` or `AsWildcard()`, and
+the comparison, e.g. with `IgnoringCase()`:
+
+```csharp
+await Expect.That(collector).Logged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}*").AsWildcard();
+```
+
+The failure message lists the compared template and properties for each record:
 
 ```text title="Failure message"
 Expected that collector

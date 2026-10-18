@@ -24,7 +24,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	private readonly List<(string Expected, StringEqualityOptions Options)> _categories = [];
 	private readonly List<int> _eventIds = [];
 	private readonly List<Type> _exceptionTypes = [];
-	private readonly List<string> _messageTemplates = [];
+	private readonly List<(string Expected, StringEqualityOptions Options)> _messageTemplates = [];
 	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
 	private readonly List<PropertyCondition> _properties = [];
 	private bool _orHigher;
@@ -78,8 +78,12 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		return options;
 	}
 
-	public void AddMessageTemplate(string expected)
-		=> _messageTemplates.Add(expected);
+	public StringEqualityOptions AddMessageTemplate(string expected)
+	{
+		StringEqualityOptions options = new(nameof(expected));
+		_messageTemplates.Add((expected, options));
+		return options;
+	}
 
 	public PropertyCondition AddProperty(string name)
 	{
@@ -137,7 +141,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	/// </summary>
 	public void ValidateExpected()
 	{
-		foreach ((string expected, StringEqualityOptions options) in _categories.Concat(_messages))
+		foreach ((string expected, StringEqualityOptions options) in _categories.Concat(_messages).Concat(_messageTemplates))
 		{
 			options.ValidateExpected(expected);
 		}
@@ -174,7 +178,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 
 		if ((_messageTemplates.Count > 0 || _properties.Count > 0) &&
 		    (GetStructuredState(record) is not { } state ||
-		     _messageTemplates.Any(template => !HasValue(state, OriginalFormat, template)) ||
+		     !await HasMatchingMessageTemplates(state) ||
 		     !await HasMatchingProperties(state)))
 		{
 			return false;
@@ -207,9 +211,11 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"message {options.GetExpectation(expected, ExpectationGrammars.None)}");
 		}
 
-		foreach (string messageTemplate in _messageTemplates)
+		// Unlike the expectation of the options, which shortens a long value, a template is shown completely, as
+		// templates often only differ in their last part, e.g. an appended placeholder.
+		foreach ((string expected, StringEqualityOptions options) in _messageTemplates)
 		{
-			conditions.Add($"message template equal to {Formatter.Format(messageTemplate)}");
+			conditions.Add($"message template {Formatter.Format(expected)}{options}");
 		}
 
 		foreach (Type exceptionType in _exceptionTypes)
@@ -217,8 +223,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"exception of type {Formatter.Format(exceptionType)}");
 		}
 
-		// Unlike the expectation of the options, which shortens a long value, a category is shown completely, as full
-		// type names often only differ in their last part.
+		// Like the template, a category is shown completely, as full type names often only differ in their last part.
 		foreach ((string expected, StringEqualityOptions options) in _categories)
 		{
 			conditions.Add($"category {Formatter.Format(expected)}{options}");
@@ -282,10 +287,18 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		return true;
 	}
 
-	private static bool HasValue(IReadOnlyList<KeyValuePair<string, string?>> state, string key, string? expected)
+	private async ValueTask<bool> HasMatchingMessageTemplates(IReadOnlyList<KeyValuePair<string, string?>> state)
 	{
-		KeyValuePair<string, string?> entry = FindEntry(state, key);
-		return entry.Key is not null && string.Equals(entry.Value, expected, StringComparison.Ordinal);
+		KeyValuePair<string, string?> entry = FindEntry(state, OriginalFormat);
+		foreach ((string expected, StringEqualityOptions options) in _messageTemplates)
+		{
+			if (entry.Key is null || !await options.AreConsideredEqual(entry.Value, expected))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/// <summary>
