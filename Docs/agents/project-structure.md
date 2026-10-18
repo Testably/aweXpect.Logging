@@ -25,9 +25,9 @@ Everything builds on the extension points of `aweXpect.Core` (`IThat<T>`, `Expec
 - `ThatFakeLogCollector.LoggedLevels.cs`: one shortcut per log level (`LoggedWarning()`, `DidNotLogError()`, ...) that delegates to the `LogLevel` overload and returns the same result type.
 - `ThatFakeLogger.cs`: the same entry points on `IThat<FakeLogger?>`. `CollectorOfLogger` registers the expectations on the collector with the expectation of the logger, so the subject stays the logger.
 - `Options/LogRecordFilter.cs` (internal): the conditions a record must meet (level, `OrHigher`, category, event ID, exception, message, message template, properties). It describes itself for the expectation text and is shared by the main expectation and each `Then` step.
-- `Results/`: the fluent result types. `LogRecordFilterResult<TSelf>` holds the filters without options (`WithCategory<T>()`, `WithEventId`, `WithException<T>()`, `WithMessageTemplate`); `LoggedResult` and `DidNotLogResult` derive from it. A method that adds options returns a more specific result that derives from the result of its side, so the other filters stay available:
+- `Results/`: the fluent result types. `LogRecordFilterResult<TSelf>` holds the filters without options (`WithCategory<T>()`, `WithEventId`, `WithException<T>()`); `LoggedResult` and `DidNotLogResult` derive from it. A method that adds options returns a more specific result that derives from the result of its side, so the other filters stay available:
   - `*LevelResult` after a log level (adds `OrHigher`).
-  - `*MessageResult`, `*CategoryResult` after `WithMessage` / `WithCategory(string)`, taking the Core string options (`AsWildcard`, `AsRegex`, `AsPrefix`, `IgnoringCase`, ...).
+  - `*MessageResult`, `*MessageTemplateResult`, `*CategoryResult` after `WithMessage` / `WithMessageTemplate` / `WithCategory(string)`, taking the Core string options (`AsWildcard`, `AsRegex`, `AsPrefix`, `IgnoringCase`, ...).
   - `*PropertyResult` after `WithProperty`, `*PropertyValueResult` after its `WithValue`.
   - `LoggedCountResult` after a quantifier (`Once()`, `AtLeast(...)`, ...), `LoggedInOrderResult` after `Then`.
   - `*WithinResult` after `Within`, the only place that offers `CheckEvery`.

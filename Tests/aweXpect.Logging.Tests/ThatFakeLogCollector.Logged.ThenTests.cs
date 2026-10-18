@@ -279,6 +279,199 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
+			[Test]
+			public async Task WithMessageTemplate_AsPrefix_WhenStepTemplateDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("Retrying").AsPrefix());
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "Retrying" as prefix in order,
+					             but it did not log a record with level Warning and message template "Retrying" as prefix at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsRegex_WhenStepTemplateDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("^Retry [0-9]+$").AsRegex());
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "^Retry [0-9]+$" as regex in order,
+					             but it did not log a record with level Warning and message template "^Retry [0-9]+$" as regex at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsSuffix_WhenStepTemplateDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("{Attempt} failed").AsSuffix());
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "{Attempt} failed" as suffix in order,
+					             but it did not log a record with level Warning and message template "{Attempt} failed" as suffix at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsWildcard_WhenStepTemplateDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("Giving up*").AsWildcard());
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "Giving up*" as wildcard in order,
+					             but it did not log a record with level Warning and message template "Giving up*" as wildcard at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_AsWildcard_WhenStepTemplateMatches_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("Retry *").AsWildcard());
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_IgnoringCase_WhenStepTemplateDiffersInCase_ShouldSucceed()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("retry {attempt}").IgnoringCase());
+
+				await That(Act).DoesNotThrow();
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_IgnoringCase_WhenStepTemplateDoesNotMatch_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("retry").IgnoringCase());
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "retry" ignoring case in order,
+					             but it did not log a record with level Warning and message template "retry" ignoring case at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """);
+			}
+
+			[Test]
+			public async Task WithMessageTemplate_WhenStepTemplateDiffersInCase_ShouldFail()
+			{
+				FakeLogCollector subject = new();
+				FakeLogger logger = new(subject);
+				logger.LogInformation("Starting");
+				LogRetry(logger, 1, null);
+
+				async Task Act()
+					=> await That(subject).Logged(LogLevel.Information)
+						.Then(r => r.Logged(LogLevel.Warning).WithMessageTemplate("retry {attempt}"));
+
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Information, then
+					             a record with level Warning and message template "retry {attempt}" in order,
+					             but it did not log a record with level Warning and message template "retry {attempt}" at all
+
+					             Records:
+					             [
+					               [Information] "Starting" (message template "Starting"),
+					               [Warning] "Retry 1" (message template "Retry {Attempt}")
+					             ]
+					             """)
+					.Because("the template is compared exactly by default");
+			}
+
 			private static async Task LogLater(FakeLogger logger)
 			{
 				await Task.Delay(50);

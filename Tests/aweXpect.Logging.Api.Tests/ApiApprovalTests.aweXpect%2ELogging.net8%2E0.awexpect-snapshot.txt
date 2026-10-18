@@ -86,6 +86,9 @@ namespace aweXpect.Results
     public sealed class DidNotLogMessageResult : aweXpect.Results.DidNotLogResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
     {
     }
+    public sealed class DidNotLogMessageTemplateResult : aweXpect.Results.DidNotLogResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
+    {
+    }
     public sealed class DidNotLogPropertyResult : aweXpect.Results.DidNotLogResult
     {
         public aweXpect.Results.DidNotLogPropertyValueResult WithValue(string? expected) { }
@@ -97,6 +100,7 @@ namespace aweXpect.Results
     {
         public aweXpect.Results.DidNotLogCategoryResult WithCategory(string expected) { }
         public aweXpect.Results.DidNotLogMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.DidNotLogMessageTemplateResult WithMessageTemplate(string expected) { }
         public aweXpect.Results.DidNotLogPropertyResult WithProperty(string name) { }
         public aweXpect.Results.DidNotLogWithinResult Within(System.TimeSpan timeout) { }
     }
@@ -109,7 +113,6 @@ namespace aweXpect.Results
         public TSelf WithCategory<TCategory>() { }
         public TSelf WithEventId(int eventId) { }
         public TSelf WithException<TException>() where TException : System.Exception { }
-        public TSelf WithMessageTemplate(string expected) { }
     }
     public sealed class LogRecordStep
     {
@@ -132,6 +135,9 @@ namespace aweXpect.Results
     public sealed class LogRecordStepMessageResult : aweXpect.Results.LogRecordStepResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
     {
     }
+    public sealed class LogRecordStepMessageTemplateResult : aweXpect.Results.LogRecordStepResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
+    {
+    }
     public sealed class LogRecordStepPropertyResult : aweXpect.Results.LogRecordStepResult
     {
         public aweXpect.Results.LogRecordStepPropertyValueResult WithValue(string? expected) { }
@@ -146,7 +152,7 @@ namespace aweXpect.Results
         public aweXpect.Results.LogRecordStepResult WithEventId(int eventId) { }
         public aweXpect.Results.LogRecordStepResult WithException<TException>() where TException : System.Exception { }
         public aweXpect.Results.LogRecordStepMessageResult WithMessage(string expected) { }
-        public aweXpect.Results.LogRecordStepResult WithMessageTemplate(string expected) { }
+        public aweXpect.Results.LogRecordStepMessageTemplateResult WithMessageTemplate(string expected) { }
         public aweXpect.Results.LogRecordStepPropertyResult WithProperty(string name) { }
     }
     public sealed class LoggedCategoryResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
@@ -175,6 +181,9 @@ namespace aweXpect.Results
     public sealed class LoggedMessageResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
     {
     }
+    public sealed class LoggedMessageTemplateResult : aweXpect.Results.LoggedResult, aweXpect.Core.IOptionsProvider<aweXpect.Options.StringEqualityOptions>, aweXpect.Results.IStringMatchTypeOptions, aweXpect.Results.IStringPatternMatchTypeOptions
+    {
+    }
     public sealed class LoggedPropertyResult : aweXpect.Results.LoggedResult
     {
         public aweXpect.Results.LoggedPropertyValueResult WithValue(string? expected) { }
@@ -200,6 +209,7 @@ namespace aweXpect.Results
         public aweXpect.Results.LoggedCountResult Twice() { }
         public aweXpect.Results.LoggedCategoryResult WithCategory(string expected) { }
         public aweXpect.Results.LoggedMessageResult WithMessage(string expected) { }
+        public aweXpect.Results.LoggedMessageTemplateResult WithMessageTemplate(string expected) { }
         public aweXpect.Results.LoggedPropertyResult WithProperty(string name) { }
         public aweXpect.Results.LoggedWithinResult Within(System.TimeSpan timeout) { }
     }

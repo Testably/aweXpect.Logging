@@ -50,12 +50,9 @@ public class LogRecordStepResult
 	public LogRecordStepMessageResult WithMessage(string expected)
 		=> new(Filter, Filter.AddMessage(expected));
 
-	/// <inheritdoc cref="LogRecordFilterResult{TSelf}.WithMessageTemplate(string)" />
-	public LogRecordStepResult WithMessageTemplate(string expected)
-	{
-		Filter.AddMessageTemplate(expected);
-		return this;
-	}
+	/// <inheritdoc cref="LoggedResult.WithMessageTemplate(string)" />
+	public LogRecordStepMessageTemplateResult WithMessageTemplate(string expected)
+		=> new(Filter, Filter.AddMessageTemplate(expected));
 
 	/// <inheritdoc cref="LoggedResult.WithProperty(string)" />
 	public LogRecordStepPropertyResult WithProperty(string name)
