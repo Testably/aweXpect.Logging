@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class OrHigherTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithMessageAndQuantifier_ShouldOnlyCountMatchingRecords()
 			{
 				FakeLogCollector subject = new();
@@ -24,7 +24,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithMessage("Retry *").AsWildcard()
 						.Once();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning or higher and message matching "Retry *" exactly once,
@@ -40,7 +40,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndHigherLevelWasLogged_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -49,7 +49,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).DoesNotComplyWith(it => it.Logged(LogLevel.Warning).OrHigher());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning or higher,
@@ -67,7 +67,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndOnlyLowerLevelsWereLogged_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -81,7 +81,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOnlyLowerLevelsWereLogged_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -92,7 +92,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).OrHigher();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning or higher at least once,
@@ -106,10 +106,10 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Theory]
-			[InlineData(LogLevel.Warning)]
-			[InlineData(LogLevel.Error)]
-			[InlineData(LogLevel.Critical)]
+			[Test]
+			[Arguments(LogLevel.Warning)]
+			[Arguments(LogLevel.Error)]
+			[Arguments(LogLevel.Critical)]
 			public async Task WhenRecordWithSameOrHigherLevelWasLogged_ShouldSucceed(LogLevel level)
 			{
 				FakeLogCollector subject = new();

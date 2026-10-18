@@ -10,7 +10,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithinTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenNothingIsLogged_ShouldSucceedAfterTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -25,7 +25,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("a record could still be logged until the timeout");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordIsLoggedDuringTheTimeout_ShouldFailBeforeTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -37,7 +37,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithMessage("Retry *").AsWildcard()
 						.Within(TimeSpan.FromSeconds(30));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning or higher and message matching "Retry *" within 0:30,

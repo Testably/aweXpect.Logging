@@ -5,8 +5,8 @@
 | Path | Content |
 |------|---------|
 | `Source/aweXpect.Logging/` | The only shipped package. Root namespace `aweXpect`. |
-| `Tests/aweXpect.Logging.Tests/` | xUnit v2 unit tests on net8.0, net10.0 and net48. |
-| `Tests/aweXpect.Logging.Api.Tests/` | NUnit public API tests (net8.0) with the expected surface per target framework in `Expected/`. |
+| `Tests/aweXpect.Logging.Tests/` | TUnit unit tests on net8.0, net10.0 and net48. |
+| `Tests/aweXpect.Logging.Api.Tests/` | TUnit public API tests (net10.0) with a `*.awexpect-snapshot.txt` of the public surface per target framework. |
 | `Tests/Aot/aweXpect.Logging.Aot/` | Console app with smoke checks, run under the JIT and published with Native AOT (net10.0). Not a test project. |
 | `Benchmarks/aweXpect.Logging.Benchmarks/` | BenchmarkDotNet project (net8.0). |
 | `Pipeline/` | Fallout build pipeline (`Build.*.cs`, one file per area). Has its own `Directory.Build.*` files that do not import the root ones. |
@@ -14,7 +14,7 @@
 | `Docs/agents/` | Guides for authors and agents (not published). |
 | `.github/workflows/` | CI (`ci.yml`), main and release build (`build.yml`), follow-ups (`ci-analysis.yml`, `notify-docs-site.yml`). |
 
-Shared MSBuild settings: `Directory.Build.props` (strong naming), `Source/Directory.Build.props` (target frameworks, warnings as errors, packaging, AOT flags), `Tests/Directory.Build.props` (test frameworks and packages), `Tests/Aot/Directory.Build.props` (AOT publish settings). `Tests/aweXpect.Logging.Api.Tests/Helper.cs` reads the target frameworks from `Source/Directory.Build.props`, so a new target framework gets an expected API file automatically after `AcceptApiChanges`.
+Shared MSBuild settings: `Directory.Build.props` (strong naming), `Source/Directory.Build.props` (target frameworks, warnings as errors, packaging, AOT flags), `Tests/Directory.Build.props` (target frameworks and the TUnit packages of the test projects), `Tests/Aot/Directory.Build.props` (AOT publish settings). `Tests/aweXpect.Logging.Api.Tests/Helper.cs` reads the target frameworks from `Source/Directory.Build.props`, so a new target framework gets a snapshot automatically after `AcceptApiChanges`.
 
 ## Library architecture
 

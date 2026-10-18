@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed partial class WithMessageTests
 		{
-			[Fact]
+			[Test]
 			public async Task AsPrefix_WhenMessageStartsWithExpected_ShouldSucceed()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -20,7 +20,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsRegex_WhenPatternDoesNotMatch_ShouldFail()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -28,7 +28,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithMessage("^Retry [0-9]+$").AsRegex();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and message matching regex "^Retry [0-9]+$" at least once,
@@ -41,7 +41,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsRegex_WhenPatternIsInvalid_ShouldThrowArgumentException()
 			{
 				FakeLogCollector subject = new();
@@ -53,7 +53,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("an unusable pattern is rejected even when no record is compared with it");
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsWildcard_WhenPatternMatches_ShouldSucceed()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit 3 reached");
@@ -64,7 +64,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task IgnoringCase_WhenMessageDiffersInCase_ShouldSucceed()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -75,7 +75,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenLevelDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Information, "Retry limit reached");
@@ -83,7 +83,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithMessage("Retry limit reached");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and message equal to "Retry limit reached" at least once,
@@ -97,7 +97,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the record must match the level and the message");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenMessageDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -105,7 +105,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithMessage("retry limit reached");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and message equal to "retry limit reached" at least once,
@@ -119,7 +119,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the message is compared exactly by default");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenMessageIsEqual_ShouldSucceed()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -130,7 +130,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndMessageMatches_ShouldFail()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -139,7 +139,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).DoesNotComplyWith(it
 						=> it.Logged(LogLevel.Warning).WithMessage("Retry *").AsWildcard());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning and message matching "Retry *",
@@ -157,7 +157,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOptionIsSpecified_ShouldIncludeItInTheExpectation()
 			{
 				FakeLogCollector subject = WithRecord(LogLevel.Warning, "Retry limit reached");
@@ -165,7 +165,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithMessage("Retry").IgnoringCase();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and message equal to "Retry" ignoring case at least once,
@@ -173,7 +173,7 @@ public sealed partial class ThatFakeLogCollector
 					             """).AsWildcard();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenQuantified_ShouldOnlyCountMatchingMessages()
 			{
 				FakeLogCollector subject = new();
@@ -185,7 +185,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithMessage("Retry *").AsWildcard().Once();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and message matching "Retry *" exactly once,
@@ -200,7 +200,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenSpecifiedTwice_ShouldRequireBothMessagesToMatch()
 			{
 				FakeLogCollector subject = new();
@@ -218,7 +218,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WithoutLevel_ShouldOnlyCompareTheMessage()
 			{
 				FakeLogCollector subject = new();
@@ -229,7 +229,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithMessage("Retry limit reached").Once();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with message equal to "Retry limit reached" exactly once,

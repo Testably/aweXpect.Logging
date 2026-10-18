@@ -11,7 +11,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class ThenTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithQuantifier_ShouldThrowInvalidOperationException()
 			{
 				FakeLogCollector subject = new();
@@ -29,7 +29,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the order implies that the first record was logged at least once");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenFirstRecordIsMissing_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -39,7 +39,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).Logged(LogLevel.Information)
 						.Then(r => r.Logged(LogLevel.Warning));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information, then
@@ -53,7 +53,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndRecordsAreLoggedInOrder_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -65,7 +65,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).DoesNotComplyWith(it => it.Logged(LogLevel.Information)
 						.Then(r => r.Logged(LogLevel.Warning)));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information, then
@@ -80,7 +80,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndRecordsAreNotLoggedInOrder_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -95,7 +95,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOneRecordMatchesTwoSteps_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -104,7 +104,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).Then(r => r.Logged(LogLevel.Warning));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning, then
@@ -119,7 +119,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("each step needs its own record after the one of the previous step");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOtherRecordsAreLoggedInBetween_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -139,7 +139,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordIsLoggedDuringTheTimeout_ShouldSucceedBeforeTheTimeout()
 			{
 				FakeLogCollector subject = new();
@@ -159,7 +159,7 @@ public sealed partial class ThatFakeLogCollector
 				await logging;
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordsAreLoggedInOrder_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -177,7 +177,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStepIsLoggedTooEarly_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -189,7 +189,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).Logged(LogLevel.Information)
 						.Then(r => r.Logged(LogLevel.Warning));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information, then
@@ -204,7 +204,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStepIsNotLoggedAtAll_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -218,7 +218,7 @@ public sealed partial class ThatFakeLogCollector
 							r => r.Logged(LogLevel.Warning),
 							r => r.Logged(LogLevel.Error));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information, then
@@ -234,7 +234,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStepsAreNull_ShouldThrowArgumentNullException()
 			{
 				FakeLogCollector subject = new();
@@ -246,7 +246,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithParamName("steps");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStepsHaveFilters_ShouldDescribeAndListThem()
 			{
 				FakeLogCollector subject = new();
@@ -262,7 +262,7 @@ public sealed partial class ThatFakeLogCollector
 							r => r.Logged(LogLevel.Warning).WithProperty("Attempt").WithValue("2"),
 							r => r.Logged(LogLevel.Error).OrHigher().WithException<TimeoutException>());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information and message equal to "Starting", then

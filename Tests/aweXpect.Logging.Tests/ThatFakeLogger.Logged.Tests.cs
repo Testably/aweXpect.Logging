@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogger
 	{
 		public sealed class Tests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenCombinedWithAnd_ShouldVerifyTheCollectorOfTheLogger()
 			{
 				FakeLogger subject = new();
@@ -19,7 +19,7 @@ public sealed partial class ThatFakeLogger
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Information).And.DidNotLog(LogLevel.Error);
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information at least once and did not log a record with level Error,
@@ -38,8 +38,8 @@ public sealed partial class ThatFakeLogger
 					             """);
 			}
 
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenLevelMethodIsUsed_ShouldExpectThatLevel(LogLevel level)
 			{
 				FakeLogger subject = new();
@@ -60,7 +60,7 @@ public sealed partial class ThatFakeLogger
 						_ => throw new ArgumentOutOfRangeException(nameof(level)),
 					});
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage($"""
 					              Expected that subject
 					              logged a record with level {level} at least once,
@@ -69,7 +69,7 @@ public sealed partial class ThatFakeLogger
 					              """).AsWildcard();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenLoggerIsGeneric_ShouldVerifyItsRecords()
 			{
 				FakeLogger<OrderService> subject = new();
@@ -82,7 +82,7 @@ public sealed partial class ThatFakeLogger
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenLoggerIsNull_ShouldFail()
 			{
 				FakeLogger? subject = null;
@@ -90,7 +90,7 @@ public sealed partial class ThatFakeLogger
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning);
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least once,
@@ -98,7 +98,7 @@ public sealed partial class ThatFakeLogger
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndRecordWasLogged_ShouldFail()
 			{
 				FakeLogger subject = new();
@@ -107,7 +107,7 @@ public sealed partial class ThatFakeLogger
 				async Task Act()
 					=> await That(subject).DoesNotComplyWith(it => it.Logged());
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record,
@@ -116,7 +116,7 @@ public sealed partial class ThatFakeLogger
 					             """).AsWildcard();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNothingWasLogged_ShouldFail()
 			{
 				FakeLogger subject = new();
@@ -124,7 +124,7 @@ public sealed partial class ThatFakeLogger
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning);
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning at least once,
@@ -132,7 +132,7 @@ public sealed partial class ThatFakeLogger
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOtherLoggerWritesToTheSameCollector_ShouldConsiderItsRecords()
 			{
 				FakeLogCollector collector = new();
@@ -147,7 +147,7 @@ public sealed partial class ThatFakeLogger
 					.Because("the expectation verifies the records of the collector of the logger");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordsAreLoggedInOrder_ShouldSucceed()
 			{
 				FakeLogger subject = new();
@@ -170,8 +170,8 @@ public sealed partial class ThatFakeLogger
 	{
 		public sealed class Tests
 		{
-			[Theory]
-			[MemberData(nameof(LogLevels.Data), MemberType = typeof(LogLevels))]
+			[Test]
+			[MethodDataSource(typeof(LogLevels), nameof(LogLevels.Data))]
 			public async Task WhenLevelMethodIsUsed_ShouldExpectThatLevel(LogLevel level)
 			{
 				FakeLogger subject = new();
@@ -189,7 +189,7 @@ public sealed partial class ThatFakeLogger
 						_ => throw new ArgumentOutOfRangeException(nameof(level)),
 					});
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage($"""
 					              Expected that subject
 					              did not log a record with level {level},
@@ -197,7 +197,7 @@ public sealed partial class ThatFakeLogger
 					              *
 					              """).AsWildcard();
 			}
-			[Fact]
+			[Test]
 			public async Task WhenNothingWasLogged_ShouldSucceed()
 			{
 				FakeLogger subject = new();
@@ -208,7 +208,7 @@ public sealed partial class ThatFakeLogger
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordWasLogged_ShouldFail()
 			{
 				FakeLogger subject = new();
@@ -217,7 +217,7 @@ public sealed partial class ThatFakeLogger
 				async Task Act()
 					=> await That(subject).DidNotLog(LogLevel.Warning).OrHigher();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with level Warning or higher,

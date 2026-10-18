@@ -9,7 +9,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithCategoryTests
 		{
-			[Fact]
+			[Test]
 			public async Task AsPrefix_WhenCategoryStartsWithExpected_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -23,7 +23,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsRegex_WhenPatternIsInvalid_ShouldThrowArgumentException()
 			{
 				FakeLogCollector subject = new();
@@ -35,7 +35,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("an unusable pattern is rejected even when no record is compared with it");
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsWildcard_WhenCategoryDoesNotMatch_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -46,7 +46,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithCategory("myapp.orders.*").AsWildcard().IgnoringCase();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with category "myapp.orders.*" as wildcard ignoring case at least once,
@@ -59,7 +59,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task AsWildcard_WhenUsedInAStep_ShouldMatchTheCategory()
 			{
 				FakeLogCollector subject = new();
@@ -74,7 +74,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task Generic_ForNestedGenericType_ShouldMatchTheCategoryOfTheLogger()
 			{
 				FakeLogCollector subject = new();
@@ -89,7 +89,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the category of a generic type is its name without the type arguments");
 			}
 
-			[Fact]
+			[Test]
 			public async Task Generic_WhenLoggedByFakeLoggerOfTheType_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -102,7 +102,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task Generic_WhenLoggedByLoggerOfTheType_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -116,7 +116,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task Generic_WhenLoggedByLoggerOfOtherType_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -126,7 +126,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Information).WithCategory<OrderService>();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Information and category "aweXpect.Logging.Tests.ThatFakeLogCollector.Logged.WithCategoryTests.OrderService" at least once,
@@ -139,7 +139,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task IgnoringCase_WhenCategoryDiffersInCase_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -153,7 +153,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenCategoryDiffersInCase_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -164,7 +164,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning).WithCategory("myapp.orders");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and category "myapp.orders" at least once,
@@ -178,7 +178,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the category is compared exactly");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenCategoryIsEqual_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -192,7 +192,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndCategoryMatches_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -203,7 +203,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).DoesNotComplyWith(it => it.Logged().WithCategory("MyApp.Orders"));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with category "MyApp.Orders",
@@ -221,7 +221,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenRecordHasNoCategory_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -230,7 +230,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithCategory("MyApp.Orders");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with category "MyApp.Orders" at least once,

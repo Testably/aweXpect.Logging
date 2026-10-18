@@ -11,7 +11,7 @@ public sealed partial class ThatFakeLogCollector
 	{
 		public sealed class WithPropertyTests
 		{
-			[Fact]
+			[Test]
 			public async Task WhenNegated_AndValueMatches_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -21,7 +21,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).DoesNotComplyWith(it
 						=> it.Logged().WithProperty("Attempt").WithValue("3"));
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             did not log a record with property Attempt with value equal to "3",
@@ -39,7 +39,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenOptionIsSpecified_ShouldIncludeItInTheExpectation()
 			{
 				FakeLogCollector subject = new();
@@ -49,7 +49,7 @@ public sealed partial class ThatFakeLogCollector
 					=> await That(subject).Logged().WithProperty("OrderId").WithValue("ord-*").AsWildcard()
 						.IgnoringCase();
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with property OrderId with value matching "ord-*" ignoring case at least once,
@@ -62,7 +62,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenPatternIsInvalid_ShouldThrowArgumentException()
 			{
 				FakeLogCollector subject = new();
@@ -74,7 +74,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("an unusable pattern is rejected even when no record is compared with it");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenPropertyExists_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -86,7 +86,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenPropertyIsMissing_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -95,7 +95,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithProperty("OrderId");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with property OrderId at least once,
@@ -108,7 +108,7 @@ public sealed partial class ThatFakeLogCollector
 					             """);
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenStateIsNotStructured_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -120,7 +120,7 @@ public sealed partial class ThatFakeLogCollector
 				async Task Act()
 					=> await That(subject).Logged().WithProperty("Attempt");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with property Attempt at least once,
@@ -134,7 +134,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("a custom state object has no properties to compare");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueDiffers_ShouldFail()
 			{
 				FakeLogCollector subject = new();
@@ -147,7 +147,7 @@ public sealed partial class ThatFakeLogCollector
 						.WithProperty("Attempt").WithValue("3")
 						.WithProperty("MaxAttempts").WithValue("5");
 
-				await That(Act).Throws<XunitException>()
+				await That(Act).Throws<FailException>()
 					.WithMessage("""
 					             Expected that subject
 					             logged a record with level Warning and property Attempt with value equal to "3" and property MaxAttempts with value equal to "5" at least once,
@@ -162,7 +162,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("a record must have all properties");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueIsNull_ShouldMatchNull()
 			{
 				FakeLogCollector subject = new();
@@ -176,7 +176,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueIsNumber_ShouldCompareItInTheInvariantCulture()
 			{
 				FakeLogCollector subject = new();
@@ -199,7 +199,7 @@ public sealed partial class ThatFakeLogCollector
 					.Because("the FakeLogger stores the values in the invariant culture");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueIsSpecifiedTwice_ShouldThrowInvalidOperationException()
 			{
 				FakeLogCollector subject = new();
@@ -215,7 +215,7 @@ public sealed partial class ThatFakeLogCollector
 					.WithMessage("WithValue cannot be specified more than once.");
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueMatches_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();
@@ -229,7 +229,7 @@ public sealed partial class ThatFakeLogCollector
 				await That(Act).DoesNotThrow();
 			}
 
-			[Fact]
+			[Test]
 			public async Task WhenValueMatchesThePattern_ShouldSucceed()
 			{
 				FakeLogCollector subject = new();

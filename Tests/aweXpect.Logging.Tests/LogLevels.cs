@@ -11,7 +11,7 @@ internal static class LogLevels
 		LogLevel.Trace, LogLevel.Debug, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Critical,
 	];
 
-	public static TheoryData<LogLevel> Data => new(All);
+	public static IEnumerable<LogLevel> Data() => All;
 
 	public static IEnumerable<LogLevel> Except(LogLevel level)
 		=> All.Where(l => l != level);
