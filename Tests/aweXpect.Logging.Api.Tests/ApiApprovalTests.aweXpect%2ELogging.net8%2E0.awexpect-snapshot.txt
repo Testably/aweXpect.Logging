@@ -6,72 +6,72 @@ namespace aweXpect
     public static class ThatFakeLogCollector
     {
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogCollector?> subject) { }
     }
     public static class ThatFakeLogger
     {
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogResult DidNotLog(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.DidNotLogLevelResult DidNotLogWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source, Microsoft.Extensions.Logging.LogLevel level) { }
+        public static aweXpect.Results.LoggedLevelResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject, Microsoft.Extensions.Logging.LogLevel level) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedResult Logged(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedCritical(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedDebug(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedError(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedInformation(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedTrace(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
         [aweXpect.Core.GuaranteesNotNull]
-        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> source) { }
+        public static aweXpect.Results.LoggedLevelResult LoggedWarning(this aweXpect.Core.IThat<Microsoft.Extensions.Logging.Testing.FakeLogger?> subject) { }
     }
 }
 namespace aweXpect.Results

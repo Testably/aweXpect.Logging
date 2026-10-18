@@ -26,28 +26,28 @@ public static partial class ThatFakeLogCollector
 	///     Verifies that the subject logged a record of any level, by default at least once.
 	/// </summary>
 	[GuaranteesNotNull]
-	public static LoggedResult Logged(this IThat<FakeLogCollector?> source)
+	public static LoggedResult Logged(this IThat<FakeLogCollector?> subject)
 	{
 		LogRecordFilter filter = new(null);
 		Quantifier quantifier = new();
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		List<LogRecordFilter> steps = [];
-		return new LoggedResult(AddLoggedConstraint(source, filter, quantifier, repeatedCheckOptions, steps),
-			source, filter, quantifier, repeatedCheckOptions, steps);
+		return new LoggedResult(AddLoggedConstraint(subject, filter, quantifier, repeatedCheckOptions, steps),
+			subject, filter, quantifier, repeatedCheckOptions, steps);
 	}
 
 	/// <summary>
 	///     Verifies that the subject logged a record with the <paramref name="level" />, by default at least once.
 	/// </summary>
 	[GuaranteesNotNull]
-	public static LoggedLevelResult Logged(this IThat<FakeLogCollector?> source, LogLevel level)
+	public static LoggedLevelResult Logged(this IThat<FakeLogCollector?> subject, LogLevel level)
 	{
 		LogRecordFilter filter = new(level);
 		Quantifier quantifier = new();
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		List<LogRecordFilter> steps = [];
 		return new LoggedLevelResult(
-			AddLoggedConstraint(source, filter, quantifier, repeatedCheckOptions, steps), source, filter,
+			AddLoggedConstraint(subject, filter, quantifier, repeatedCheckOptions, steps), subject, filter,
 			quantifier, repeatedCheckOptions, steps);
 	}
 
