@@ -12,12 +12,12 @@ public static partial class ThatFakeLogCollector
 	///     Verifies that the subject did not log any record.
 	/// </summary>
 	[GuaranteesNotNull]
-	public static DidNotLogResult DidNotLog(this IThat<FakeLogCollector?> source)
+	public static DidNotLogResult DidNotLog(this IThat<FakeLogCollector?> subject)
 	{
 		LogRecordFilter filter = new(null);
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		return new DidNotLogResult(
-			AddLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions, []), source, filter,
+			AddLoggedConstraint(subject, filter, Quantifier.Never(), repeatedCheckOptions, []), subject, filter,
 			repeatedCheckOptions);
 	}
 
@@ -25,12 +25,12 @@ public static partial class ThatFakeLogCollector
 	///     Verifies that the subject did not log a record with the <paramref name="level" />.
 	/// </summary>
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLog(this IThat<FakeLogCollector?> source, LogLevel level)
+	public static DidNotLogLevelResult DidNotLog(this IThat<FakeLogCollector?> subject, LogLevel level)
 	{
 		LogRecordFilter filter = new(level);
 		RepeatedCheckOptions repeatedCheckOptions = new();
 		return new DidNotLogLevelResult(
-			AddLoggedConstraint(source, filter, Quantifier.Never(), repeatedCheckOptions, []), source, filter,
+			AddLoggedConstraint(subject, filter, Quantifier.Never(), repeatedCheckOptions, []), subject, filter,
 			repeatedCheckOptions);
 	}
 }

@@ -18,83 +18,83 @@ public static class ThatFakeLogger
 {
 	/// <inheritdoc cref="ThatFakeLogCollector.Logged(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedResult Logged(this IThat<FakeLogger?> source)
-		=> new CollectorOfLogger(source).Logged();
+	public static LoggedResult Logged(this IThat<FakeLogger?> subject)
+		=> new CollectorOfLogger(subject).Logged();
 
 	/// <inheritdoc cref="ThatFakeLogCollector.Logged(IThat{FakeLogCollector}, LogLevel)" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult Logged(this IThat<FakeLogger?> source, LogLevel level)
-		=> new CollectorOfLogger(source).Logged(level);
+	public static LoggedLevelResult Logged(this IThat<FakeLogger?> subject, LogLevel level)
+		=> new CollectorOfLogger(subject).Logged(level);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLog(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogResult DidNotLog(this IThat<FakeLogger?> source)
-		=> new CollectorOfLogger(source).DidNotLog();
+	public static DidNotLogResult DidNotLog(this IThat<FakeLogger?> subject)
+		=> new CollectorOfLogger(subject).DidNotLog();
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLog(IThat{FakeLogCollector}, LogLevel)" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLog(this IThat<FakeLogger?> source, LogLevel level)
-		=> new CollectorOfLogger(source).DidNotLog(level);
+	public static DidNotLogLevelResult DidNotLog(this IThat<FakeLogger?> subject, LogLevel level)
+		=> new CollectorOfLogger(subject).DidNotLog(level);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedTrace(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedTrace(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Trace);
+	public static LoggedLevelResult LoggedTrace(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Trace);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedDebug(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedDebug(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Debug);
+	public static LoggedLevelResult LoggedDebug(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Debug);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedInformation(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedInformation(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Information);
+	public static LoggedLevelResult LoggedInformation(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Information);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedWarning(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedWarning(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Warning);
+	public static LoggedLevelResult LoggedWarning(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Warning);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedError(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedError(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Error);
+	public static LoggedLevelResult LoggedError(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Error);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.LoggedCritical(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static LoggedLevelResult LoggedCritical(this IThat<FakeLogger?> source)
-		=> source.Logged(LogLevel.Critical);
+	public static LoggedLevelResult LoggedCritical(this IThat<FakeLogger?> subject)
+		=> subject.Logged(LogLevel.Critical);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogTrace(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogTrace(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Trace);
+	public static DidNotLogLevelResult DidNotLogTrace(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Trace);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogDebug(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogDebug(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Debug);
+	public static DidNotLogLevelResult DidNotLogDebug(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Debug);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogInformation(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogInformation(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Information);
+	public static DidNotLogLevelResult DidNotLogInformation(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Information);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogWarning(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogWarning(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Warning);
+	public static DidNotLogLevelResult DidNotLogWarning(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Warning);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogError(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogError(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Error);
+	public static DidNotLogLevelResult DidNotLogError(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Error);
 
 	/// <inheritdoc cref="ThatFakeLogCollector.DidNotLogCritical(IThat{FakeLogCollector})" />
 	[GuaranteesNotNull]
-	public static DidNotLogLevelResult DidNotLogCritical(this IThat<FakeLogger?> source)
-		=> source.DidNotLog(LogLevel.Critical);
+	public static DidNotLogLevelResult DidNotLogCritical(this IThat<FakeLogger?> subject)
+		=> subject.DidNotLog(LogLevel.Critical);
 
 	/// <summary>
 	///     Registers the expectations on the collector with the expectation on the logger.
