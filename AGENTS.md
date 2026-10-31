@@ -38,6 +38,18 @@ Correctness is a must. The other goals are strong defaults and win in this order
 - Code samples in `README.md` and `Docs/pages/` are not compiled; keep them in line with the tests by hand. New expectations belong in the README overview and in `Docs/pages/`.
 - CONTRIBUTING requires SonarCloud issues to be solved and coverage above 90%.
 
+## Documentation
+
+Pages under `Docs/pages` are published on docs.testably.org and follow the [docs style guide](https://github.com/Testably/Testably.Site/blob/main/Docs/style-guide.md). The key rules:
+
+- US English, sentence case for headings and labels, no em dashes, one line per paragraph.
+- A `description` in the front matter of every page; the H1 is the title; order with unique `NN-` prefixes.
+- Relative file links within the repository, site-absolute `/Library/...` links across libraries.
+- Install instructions only through `<PackageInstall package="..." />`, never hand-written commands or NuGet badges.
+- Examples check results with `await That(...)`; complete examples use TUnit `[Test]`.
+
+`README.md` is the GitHub and NuGet landing page and is maintained separately from `Docs/pages/00-index.md`; keep their overview tables in sync by hand.
+
 ## Git workflow
 
 - Branch from `main` and open a PR against `main`; PRs are squash-merged.

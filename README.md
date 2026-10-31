@@ -14,8 +14,7 @@ Expectations for logging with `Microsoft.Extensions.Logging` for [aweXpect](http
 dotnet add package aweXpect.Logging
 ```
 
-The package adds its expectations to aweXpect, so the test project also needs the
-[`aweXpect`](https://www.nuget.org/packages/aweXpect) package.
+The package adds its expectations to aweXpect, so the test project also needs the [`aweXpect`](https://www.nuget.org/packages/aweXpect) package. The examples assume `global using static aweXpect.Expect;`.
 
 ## At a glance
 
@@ -26,7 +25,7 @@ ILogger logger = new FakeLogger(collector);
 logger.LogWarning("Retry limit reached");
 
 // verify that a record with the log level was logged
-await Expect.That(collector).LoggedWarning();
+await That(collector).LoggedWarning();
 ```
 
 A failing expectation lists the collected records. If only an error was logged, `LoggedWarning()` would
@@ -49,10 +48,12 @@ Records:
 |--------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|
 | [`Logged`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()`   |
 | [`DidNotLog`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`            |
+| [`Then`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#order)           | `FakeLogCollector`, `FakeLogger` | logged further records after a matching record, in the given order      |
+| [`Within`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#timeout)       | `FakeLogCollector`, `FakeLogger` | reads the records repeatedly until the timeout, e.g. for a background service |
 
 ## Documentation
 
 The full documentation is available at
 [docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/):
 
-- [Log records](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records): `Logged` and `DidNotLog` on the records of a `FakeLogCollector`
+- [Log records](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records): `Logged`, `DidNotLog`, `Then` and `Within` on the records of a `FakeLogCollector` or `FakeLogger`
