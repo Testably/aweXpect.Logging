@@ -1,3 +1,7 @@
+---
+description: Verify the level, message, exception, category, properties, count, order and timing of the log records of a FakeLogCollector or FakeLogger.
+---
+
 # Log records
 
 The expectations verify the records of a
@@ -17,7 +21,7 @@ the records of other loggers that write to the same collector:
 FakeLogger<OrderService> logger = new();
 logger.LogWarning("Retry limit reached");
 
-await Expect.That(logger).LoggedWarning().And.DidNotLogError();
+await That(logger).LoggedWarning().And.DidNotLogError();
 ```
 
 `And` and `Or` then continue with further expectations on these records, e.g. `Logged` or `DidNotLog`.
@@ -29,14 +33,14 @@ You can verify that at least one record with the log level was logged:
 ```csharp
 logger.LogWarning("Retry limit reached");
 
-await Expect.That(collector).LoggedWarning();
+await That(collector).LoggedWarning();
 ```
 
 There is a method for each log level: `LoggedTrace()`, `LoggedDebug()`, `LoggedInformation()`, `LoggedWarning()`,
 `LoggedError()` and `LoggedCritical()`. When the level is a parameter, e.g. in a theory, you can pass it instead:
 
 ```csharp
-await Expect.That(collector).Logged(level);
+await That(collector).Logged(level);
 ```
 
 The log level must match exactly, so a record with the level `Error` does not satisfy `LoggedWarning()`. If only an
@@ -68,13 +72,13 @@ considered nor listed, unless you specify a [timeout](#timeout).
 With `OrHigher()`, a record with a more severe level also counts, e.g. to verify that no warning or error was logged:
 
 ```csharp
-await Expect.That(collector).LoggedWarning().OrHigher().Never();
+await That(collector).LoggedWarning().OrHigher().Never();
 ```
 
 Without a log level, a record of any level is enough:
 
 ```csharp
-await Expect.That(collector).Logged();
+await That(collector).Logged();
 ```
 
 ## Message
@@ -84,8 +88,8 @@ You can additionally verify the message of the record:
 ```csharp
 logger.LogWarning("Retry limit 3 reached");
 
-await Expect.That(collector).LoggedWarning().WithMessage("Retry limit 3 reached");
-await Expect.That(collector).Logged().WithMessage("Retry limit * reached").AsWildcard();
+await That(collector).LoggedWarning().WithMessage("Retry limit 3 reached");
+await That(collector).Logged().WithMessage("Retry limit * reached").AsWildcard();
 ```
 
 The message must be equal by default. As for other strings, you can change the match type with `AsWildcard()`,
@@ -112,7 +116,7 @@ You can additionally verify the type of the exception of the record, which inclu
 ```csharp
 logger.LogError(new FileNotFoundException(), "Configuration missing");
 
-await Expect.That(collector).LoggedError().WithException<IOException>();
+await That(collector).LoggedError().WithException<IOException>();
 ```
 
 The failure message lists the type of the exception after the message of a record, e.g. if the exception had another
@@ -135,9 +139,9 @@ When several loggers write to the same collector, e.g. with `AddFakeLogging()` i
 the category of the logger and the event ID of the record:
 
 ```csharp
-await Expect.That(collector).LoggedWarning().WithCategory<OrderService>();
-await Expect.That(collector).Logged().WithCategory("MyApp.Orders").WithEventId(1001);
-await Expect.That(collector).Logged().WithCategory("MyApp.Orders.").AsPrefix();
+await That(collector).LoggedWarning().WithCategory<OrderService>();
+await That(collector).Logged().WithCategory("MyApp.Orders").WithEventId(1001);
+await That(collector).Logged().WithCategory("MyApp.Orders.").AsPrefix();
 ```
 
 `WithCategory<T>()` expects the category of an `ILogger<T>`, i.e. the full name of the type, where nested types are
@@ -164,9 +168,9 @@ With structured logging, a record stores its message template and the values of 
 ```csharp
 logger.LogWarning("Retry {Attempt} of {MaxAttempts}", 3, 5);
 
-await Expect.That(collector).LoggedWarning().WithProperty("Attempt");
-await Expect.That(collector).LoggedWarning().WithProperty("Attempt").WithValue("3");
-await Expect.That(collector).Logged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}").Twice();
+await That(collector).LoggedWarning().WithProperty("Attempt");
+await That(collector).LoggedWarning().WithProperty("Attempt").WithValue("3");
+await That(collector).Logged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}").Twice();
 ```
 
 `WithProperty` alone only requires the property, while `WithValue` also verifies its value. The `FakeLogger` stores the
@@ -175,7 +179,7 @@ is a string, too. It must be equal by default, and as for the message, you can c
 e.g. with `AsWildcard()`, and the comparison, e.g. with `IgnoringCase()`:
 
 ```csharp
-await Expect.That(collector).Logged().WithProperty("OrderId").WithValue("ORD-*").AsWildcard();
+await That(collector).Logged().WithProperty("OrderId").WithValue("ORD-*").AsWildcard();
 ```
 
 The template does not depend on the logged values, so it identifies the statement that logged a record. It must be
@@ -183,7 +187,7 @@ equal by default, and as for the message, you can change the match type, e.g. wi
 the comparison, e.g. with `IgnoringCase()`:
 
 ```csharp
-await Expect.That(collector).Logged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}*").AsWildcard();
+await That(collector).Logged().WithMessageTemplate("Retry {Attempt} of {MaxAttempts}*").AsWildcard();
 ```
 
 The failure message lists the compared template and properties for each record:
@@ -207,15 +211,15 @@ message shows as `(no structured state)`.
 By default, a single matching record is enough. You can specify how many matching records are expected instead:
 
 ```csharp
-await Expect.That(collector).LoggedWarning().Once();
-await Expect.That(collector).LoggedWarning().Twice();
-await Expect.That(collector).LoggedWarning().Exactly(3.Times());
-await Expect.That(collector).LoggedWarning().AtLeast(2.Times());
-await Expect.That(collector).LoggedWarning().AtMost().Once();
-await Expect.That(collector).LoggedWarning().Between(1).And(3.Times());
-await Expect.That(collector).LoggedWarning().LessThan(3.Times());
-await Expect.That(collector).LoggedWarning().MoreThan().Once();
-await Expect.That(collector).LoggedError().Never();
+await That(collector).LoggedWarning().Once();
+await That(collector).LoggedWarning().Twice();
+await That(collector).LoggedWarning().Exactly(3.Times());
+await That(collector).LoggedWarning().AtLeast(2.Times());
+await That(collector).LoggedWarning().AtMost().Once();
+await That(collector).LoggedWarning().Between(1).And(3.Times());
+await That(collector).LoggedWarning().LessThan(3.Times());
+await That(collector).LoggedWarning().MoreThan().Once();
+await That(collector).LoggedError().Never();
 ```
 
 If two warnings were logged, `LoggedWarning().Once()` would fail with:
@@ -260,7 +264,7 @@ records when negated.
 Only one quantifier can be specified for each `Logged`, after the message:
 
 ```csharp
-await Expect.That(collector).LoggedWarning().WithMessage("Retry *").AsWildcard().Twice();
+await That(collector).LoggedWarning().WithMessage("Retry *").AsWildcard().Twice();
 ```
 
 ## Not logged
@@ -268,9 +272,9 @@ await Expect.That(collector).LoggedWarning().WithMessage("Retry *").AsWildcard()
 You can verify that no matching record was logged:
 
 ```csharp
-await Expect.That(collector).DidNotLogError();
-await Expect.That(collector).DidNotLogWarning().OrHigher();
-await Expect.That(collector).DidNotLog().WithMessage("*password*").AsWildcard();
+await That(collector).DidNotLogError();
+await That(collector).DidNotLogWarning().OrHigher();
+await That(collector).DidNotLog().WithMessage("*password*").AsWildcard();
 ```
 
 As for `Logged`, there is a method for each log level, e.g. `DidNotLogError()`, and `DidNotLog(LogLevel)` for a level
@@ -299,7 +303,7 @@ Records:
 With `Then`, you can verify that further records were logged after a matching record, in the given order:
 
 ```csharp
-await Expect.That(collector).LoggedInformation().WithMessage("Starting")
+await That(collector).LoggedInformation().WithMessage("Starting")
     .Then(
         r => r.LoggedWarning().WithMessage("Retry *").AsWildcard(),
         r => r.LoggedError().OrHigher().WithException<TimeoutException>());
@@ -330,9 +334,9 @@ Records of a background service, e.g. a hosted service or a timer, can be logged
 With `Within`, the records are read repeatedly until the timeout:
 
 ```csharp
-await Expect.That(collector).LoggedInformation().WithMessage("Started").Within(TimeSpan.FromSeconds(5));
-await Expect.That(collector).LoggedWarning().Once().Within(TimeSpan.FromSeconds(5));
-await Expect.That(collector).DidNotLogError().OrHigher().Within(TimeSpan.FromSeconds(5));
+await That(collector).LoggedInformation().WithMessage("Started").Within(TimeSpan.FromSeconds(5));
+await That(collector).LoggedWarning().Once().Within(TimeSpan.FromSeconds(5));
+await That(collector).DidNotLogError().OrHigher().Within(TimeSpan.FromSeconds(5));
 ```
 
 The records are read until their amount decides the outcome, so the expectation only waits as long as necessary:
@@ -345,7 +349,7 @@ The records are read every 100 milliseconds by default (`Customize.aweXpect.Sett
 change the interval with `CheckEvery` directly after `Within`:
 
 ```csharp
-await Expect.That(collector).LoggedWarning()
+await That(collector).LoggedWarning()
     .Within(TimeSpan.FromSeconds(5)).CheckEvery(TimeSpan.FromMilliseconds(10));
 ```
 

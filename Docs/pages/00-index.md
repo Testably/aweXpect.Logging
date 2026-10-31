@@ -1,16 +1,18 @@
+---
+description: Expectations for the log records that are written with Microsoft.Extensions.Logging and collected by a FakeLogCollector or FakeLogger.
+---
+
 import PackageInstall from '@site/src/components/PackageInstall';
 
 # aweXpect.Logging
 
-[aweXpect.Logging](https://github.com/Testably/aweXpect.Logging) contains expectations for the log records that are
-written with `Microsoft.Extensions.Logging`. It is an extension for [aweXpect](/aweXpect).
+[aweXpect.Logging](https://github.com/Testably/aweXpect.Logging) contains expectations for the log records that are written with `Microsoft.Extensions.Logging`. It is an extension for [aweXpect](/aweXpect).
 
 ## Installation
 
 <PackageInstall package="aweXpect.Logging" />
 
-The package adds its expectations to aweXpect, so the test project also needs the
-[`aweXpect`](/aweXpect/getting-started) package.
+The package adds its expectations to aweXpect, so the test project also needs the [`aweXpect`](/aweXpect/getting-started) package.
 
 ## At a glance
 
@@ -21,7 +23,7 @@ ILogger logger = new FakeLogger(collector);
 logger.LogWarning("Retry limit reached");
 
 // verify that a record with the log level was logged
-await Expect.That(collector).LoggedWarning();
+await That(collector).LoggedWarning();
 ```
 
 A failing expectation lists the collected records. If only an error was logged, `LoggedWarning()` would
@@ -40,7 +42,9 @@ Records:
 
 ## Overview
 
-| Expectation                                         | Subject                          | Summary                                                               |
-|-----------------------------------------------------|----------------------------------|-----------------------------------------------------------------------|
-| [`Logged`](./01-log-records.md#level)               | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()` |
-| [`DidNotLog`](./01-log-records.md#not-logged)       | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`          |
+| Expectation                                         | Subject                          | Summary                                                                        |
+|-----------------------------------------------------|----------------------------------|--------------------------------------------------------------------------------|
+| [`Logged`](./01-log-records.md#level)               | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()`          |
+| [`DidNotLog`](./01-log-records.md#not-logged)       | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`                   |
+| [`Then`](./01-log-records.md#order)                 | `FakeLogCollector`, `FakeLogger` | logged further records after a matching record, in the given order             |
+| [`Within`](./01-log-records.md#timeout)             | `FakeLogCollector`, `FakeLogger` | reads the records repeatedly until the timeout, e.g. for a background service |
