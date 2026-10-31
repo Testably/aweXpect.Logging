@@ -10,7 +10,7 @@
 | `Tests/Aot/aweXpect.Logging.Aot/` | Console app with smoke checks, run under the JIT and published with Native AOT (net10.0). Not a test project. |
 | `Benchmarks/aweXpect.Logging.Benchmarks/` | BenchmarkDotNet project (net8.0). |
 | `Pipeline/` | Fallout build pipeline (`Build.*.cs`, one file per area). Has its own `Directory.Build.*` files that do not import the root ones. |
-| `Docs/pages/` | User documentation, published to docs.testably.org. `00-index.md` embeds the README through the `{README}` placeholder. |
+| `Docs/pages/` | User documentation, published to docs.testably.org. `00-index.md` is the docs landing page, maintained separately from the README. |
 | `Docs/agents/` | Guides for authors and agents (not published). |
 | `.github/workflows/` | CI (`ci.yml`), main and release build (`build.yml`), follow-ups (`ci-analysis.yml`, `notify-docs-site.yml`). |
 
