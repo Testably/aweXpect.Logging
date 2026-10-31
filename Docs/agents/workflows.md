@@ -63,9 +63,9 @@ Benchmarks are `[Benchmark]` methods of the partial class `HappyCaseBenchmarks` 
 
 ## Documentation
 
-- `Docs/pages/*.md` is published to docs.testably.org: after a successful `Build` workflow on `main`, `notify-docs-site.yml` dispatches a rebuild of `Testably/Testably.Site`. `00-index.md` embeds `README.md`.
+- `Docs/pages/*.md` is published to docs.testably.org: after a successful `Build` workflow on `main`, `notify-docs-site.yml` dispatches a rebuild of `Testably/Testably.Site`. `00-index.md` is the docs landing page and is maintained separately from `README.md`, the GitHub and NuGet landing page.
 - Code fences are not compiled. Copy samples from passing tests, and copy failure messages from the `WithMessage` assertions.
-- New expectations go into the overview table of `README.md` and the matching page in `Docs/pages/`.
+- New expectations go into the overview tables of `README.md` and `Docs/pages/00-index.md` and the matching page in `Docs/pages/`.
 
 ## CI workflows
 

@@ -8,6 +8,15 @@
 
 Expectations for logging with `Microsoft.Extensions.Logging` for [aweXpect](https://github.com/Testably/aweXpect).
 
+## Installation
+
+```shell
+dotnet add package aweXpect.Logging
+```
+
+The package adds its expectations to aweXpect, so the test project also needs the
+[`aweXpect`](https://www.nuget.org/packages/aweXpect) package.
+
 ## At a glance
 
 ```csharp
