@@ -38,12 +38,12 @@ Records:
 
 | Expectation                                            | Subject                          | Summary                                                                 |
 |--------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|
-| [`Logged`](Docs/pages/01-log-records.md#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()`   |
-| [`DidNotLog`](Docs/pages/01-log-records.md#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`            |
+| [`Logged`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#level)         | `FakeLogCollector`, `FakeLogger` | logged at least one record with the log level, e.g. `LoggedWarning()`   |
+| [`DidNotLog`](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records#not-logged) | `FakeLogCollector`, `FakeLogger` | logged no record with the log level, e.g. `DidNotLogError()`            |
 
 ## Documentation
 
 The full documentation is available at
 [docs.testably.org](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/):
 
-- [Log records](Docs/pages/01-log-records.md): `Logged` and `DidNotLog` on the records of a `FakeLogCollector`
+- [Log records](https://docs.testably.org/aweXpect/extensions/aweXpect.Logging/log-records): `Logged` and `DidNotLog` on the records of a `FakeLogCollector`
