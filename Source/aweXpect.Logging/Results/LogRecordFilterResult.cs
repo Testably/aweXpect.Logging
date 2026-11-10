@@ -21,7 +21,7 @@ public abstract class LogRecordFilterResult<TSelf>
 	where TSelf : LogRecordFilterResult<TSelf>
 {
 	private protected LogRecordFilterResult(ExpectationBuilder expectationBuilder,
-		IThat<FakeLogCollector?> returnValue, LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		IThat<FakeLogCollector?> returnValue, LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
 		ReturnValue = returnValue;
@@ -31,7 +31,7 @@ public abstract class LogRecordFilterResult<TSelf>
 
 	private protected LogRecordFilter Filter { get; }
 
-	private protected RepeatedCheckOptions RepeatedCheckOptions { get; }
+	private protected OptionsHolder<RepeatedCheckOptions> RepeatedCheckOptions { get; }
 
 	private protected IThat<FakeLogCollector?> ReturnValue { get; }
 

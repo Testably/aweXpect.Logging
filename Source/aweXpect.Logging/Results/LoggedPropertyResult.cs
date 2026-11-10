@@ -12,11 +12,11 @@ namespace aweXpect.Results;
 public sealed class LoggedPropertyResult : LoggedResult
 {
 	private readonly LogRecordFilter.PropertyCondition _property;
-	private readonly Quantifier _quantifier;
+	private readonly OptionsHolder<Quantifier> _quantifier;
 	private readonly List<LogRecordFilter> _steps;
 
 	internal LoggedPropertyResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		LogRecordFilter filter, OptionsHolder<Quantifier> quantifier, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
 		List<LogRecordFilter> steps, LogRecordFilter.PropertyCondition property)
 		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{

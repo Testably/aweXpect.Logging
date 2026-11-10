@@ -13,14 +13,14 @@ public sealed class LogRecordStepCategoryResult
 		IOptionsProvider<StringEqualityOptions>,
 		IStringMatchTypeOptions
 {
-	private readonly StringEqualityOptions _options;
+	private readonly OptionsHolder<StringEqualityOptions> _options;
 
-	internal LogRecordStepCategoryResult(LogRecordFilter filter, StringEqualityOptions options)
+	internal LogRecordStepCategoryResult(LogRecordFilter filter, OptionsHolder<StringEqualityOptions> options)
 		: base(filter)
 	{
 		_options = options;
 	}
 
 	/// <inheritdoc cref="IOptionsProvider{TOptions}.Options" />
-	StringEqualityOptions IOptionsProvider<StringEqualityOptions>.Options => _options;
+	OptionsHolder<StringEqualityOptions> IOptionsProvider<StringEqualityOptions>.Options => _options;
 }

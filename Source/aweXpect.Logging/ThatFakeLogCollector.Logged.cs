@@ -29,8 +29,8 @@ public static partial class ThatFakeLogCollector
 	public static LoggedResult Logged(this IThat<FakeLogCollector?> subject)
 	{
 		LogRecordFilter filter = new(null);
-		Quantifier quantifier = new();
-		RepeatedCheckOptions repeatedCheckOptions = new();
+		OptionsHolder<Quantifier> quantifier = new(Quantifier.Default);
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions = new(RepeatedCheckOptions.Default);
 		List<LogRecordFilter> steps = [];
 		return new LoggedResult(AddLoggedConstraint(subject, filter, quantifier, repeatedCheckOptions, steps),
 			subject, filter, quantifier, repeatedCheckOptions, steps);
@@ -43,8 +43,8 @@ public static partial class ThatFakeLogCollector
 	public static LoggedLevelResult Logged(this IThat<FakeLogCollector?> subject, LogLevel level)
 	{
 		LogRecordFilter filter = new(level);
-		Quantifier quantifier = new();
-		RepeatedCheckOptions repeatedCheckOptions = new();
+		OptionsHolder<Quantifier> quantifier = new(Quantifier.Default);
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions = new(RepeatedCheckOptions.Default);
 		List<LogRecordFilter> steps = [];
 		return new LoggedLevelResult(
 			AddLoggedConstraint(subject, filter, quantifier, repeatedCheckOptions, steps), subject, filter,
@@ -56,11 +56,13 @@ public static partial class ThatFakeLogCollector
 	///     as the value of the expectation stays the logger.
 	/// </remarks>
 	private static ExpectationBuilder AddLoggedConstraint(IThat<FakeLogCollector?> source, LogRecordFilter filter,
-		Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions, List<LogRecordFilter> steps)
+		OptionsHolder<Quantifier> quantifier, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
+		List<LogRecordFilter> steps)
 	{
 		ExpectationBuilder expectationBuilder = source.Get().ExpectationBuilder;
-		(LogRecordFilter Filter, Quantifier Quantifier, RepeatedCheckOptions RepeatedCheckOptions,
-			List<LogRecordFilter> Steps) state = (filter, quantifier, repeatedCheckOptions, steps);
+		(LogRecordFilter Filter, OptionsHolder<Quantifier> Quantifier,
+			OptionsHolder<RepeatedCheckOptions> RepeatedCheckOptions, List<LogRecordFilter> Steps) state =
+				(filter, quantifier, repeatedCheckOptions, steps);
 		return source is ThatFakeLogger.CollectorOfLogger
 			? expectationBuilder.AddConstraint(state, static (state, it, grammars)
 				=> new CollectorOfLoggerConstraint(new LoggedConstraint(it, grammars, state.Filter,
@@ -97,8 +99,8 @@ public static partial class ThatFakeLogCollector
 		string it,
 		ExpectationGrammars grammars,
 		LogRecordFilter filter,
-		Quantifier quantifier,
-		RepeatedCheckOptions repeatedCheckOptions,
+		OptionsHolder<Quantifier> quantifier,
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
 		List<LogRecordFilter> steps)
 		: ConstraintResult.WithNotNullValue<FakeLogCollector?>(it, grammars),
 			IAsyncContextConstraint<FakeLogCollector?>
@@ -132,11 +134,13 @@ public static partial class ThatFakeLogCollector
 				return this;
 			}
 
-			Outcome repeatedOutcome = await repeatedCheckOptions.CheckRepeatedly(async _ =>
+			Outcome repeatedOutcome = await repeatedCheckOptions.Value.CheckRepeatedly(async _ =>
 			{
 				// A snapshot, as the collector can receive further records while the result is evaluated and rendered.
 				await Read(actual.GetSnapshot());
-				return IsOrdered ? _missingStep is null : quantifier.Check(_matchingRecords.Count, false) is not null;
+				return IsOrdered
+					? _missingStep is null
+					: quantifier.Value.Check(_matchingRecords.Count, false) is not null;
 			}, context);
 			if (repeatedOutcome == Outcome.Undecided)
 			{
@@ -153,8 +157,8 @@ public static partial class ThatFakeLogCollector
 		///     implies.
 		/// </summary>
 		private bool IsAtLeastOnce()
-			=> quantifier.Check(0, true) != true && quantifier.Check(1, true) == true &&
-			   quantifier.Check(int.MaxValue, true) == true;
+			=> quantifier.Value.Check(0, true) != true && quantifier.Value.Check(1, true) == true &&
+			   quantifier.Value.Check(int.MaxValue, true) == true;
 
 		private bool IsMetByTheRecords()
 		{
@@ -163,7 +167,7 @@ public static partial class ThatFakeLogCollector
 				return _missingStep is null;
 			}
 
-			return quantifier.Check(_matchingRecords.Count, true) == true;
+			return quantifier.Value.Check(_matchingRecords.Count, true) == true;
 		}
 
 		private async ValueTask Read(IReadOnlyList<FakeLogRecord> records)
@@ -261,7 +265,7 @@ public static partial class ThatFakeLogCollector
 		///     Whether the <paramref name="amount" /> of matching records meets the expectation, or its negation.
 		/// </summary>
 		private bool IsMet(int amount)
-			=> quantifier.Check(amount, true, IsNegated) ?? IsNegated;
+			=> quantifier.Value.Check(amount, true, IsNegated) ?? IsNegated;
 
 		private void AddRecords(ResultContextCollector contexts, string title,
 			IReadOnlyList<FakeLogRecord> records, int priority = 0)
@@ -335,7 +339,7 @@ public static partial class ThatFakeLogCollector
 				stringBuilder.Append(", then").Append(Environment.NewLine).Append(indentation).Append(step);
 			}
 
-			stringBuilder.Append(order).Append(repeatedCheckOptions);
+			stringBuilder.Append(order).Append(repeatedCheckOptions.Value);
 		}
 
 		private void AppendOrderedResult(StringBuilder stringBuilder)
@@ -362,7 +366,7 @@ public static partial class ThatFakeLogCollector
 		private void AppendExpectation(StringBuilder stringBuilder, bool isNegated)
 		{
 			const string not = "not ";
-			string? times = quantifier.IsNever(isNegated) ? null : quantifier.ToString(isNegated);
+			string? times = quantifier.Value.IsNever(isNegated) ? null : quantifier.Value.ToString(isNegated);
 			bool hasNot = times is null || times.StartsWith(not, StringComparison.Ordinal);
 			stringBuilder.Append(hasNot ? "did not log " : "logged ").Append(filter);
 			if (times is not null)
@@ -370,7 +374,7 @@ public static partial class ThatFakeLogCollector
 				stringBuilder.Append(' ').Append(hasNot ? times.Substring(not.Length) : times);
 			}
 
-			stringBuilder.Append(repeatedCheckOptions);
+			stringBuilder.Append(repeatedCheckOptions.Value);
 		}
 
 		private void AppendResult(StringBuilder stringBuilder)

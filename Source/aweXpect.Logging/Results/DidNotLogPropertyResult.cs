@@ -14,7 +14,7 @@ public sealed class DidNotLogPropertyResult : DidNotLogResult
 	private readonly LogRecordFilter.PropertyCondition _property;
 
 	internal DidNotLogPropertyResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions, LogRecordFilter.PropertyCondition property)
+		LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions, LogRecordFilter.PropertyCondition property)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 		_property = property;

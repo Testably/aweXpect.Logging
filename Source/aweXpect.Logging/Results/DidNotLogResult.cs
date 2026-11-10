@@ -21,7 +21,7 @@ public class DidNotLogResult : LogRecordFilterResult<DidNotLogResult>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal DidNotLogResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 	}

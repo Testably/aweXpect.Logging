@@ -1,7 +1,5 @@
-[assembly: System.Reflection.AssemblyMetadata("IsAotCompatible", "True")]
-[assembly: System.Reflection.AssemblyMetadata("IsTrimmable", "True")]
 [assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/Testably/aweXpect.Logging.git")]
-[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName = ".NET 10.0")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName = ".NET Standard 2.0")]
 namespace aweXpect
 {
     public static class ThatFakeLogCollector
@@ -198,7 +196,7 @@ namespace aweXpect.Results
         public aweXpect.Results.LoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
         public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> AtMost() { }
         public aweXpect.Results.LoggedCountResult AtMost(aweXpect.Core.Times maximum) { }
-        public aweXpect.Results.BetweenResult<aweXpect.Results.LoggedCountResult> Between(int minimum) { }
+        public aweXpect.Results.BetweenResult<aweXpect.Results.LoggedCountResult, aweXpect.Core.Times> Between(int minimum) { }
         public aweXpect.Results.LoggedCountResult Exactly(aweXpect.Core.Times expected) { }
         public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> LessThan() { }
         public aweXpect.Results.LoggedCountResult LessThan(aweXpect.Core.Times maximum) { }

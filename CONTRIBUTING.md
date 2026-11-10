@@ -28,4 +28,4 @@ intentional, accept it by running the explicit test `AcceptApiChanges`
 ```
 dotnet test --project Tests/aweXpect.Logging.Api.Tests --treenode-filter "/*/*/ApiApprovalTests/AcceptApiChanges"
 ```
-and commit the updated `*.awexpect-snapshot.txt` files.
+and commit the updated `*.awexpect-snapshot.cs` files.

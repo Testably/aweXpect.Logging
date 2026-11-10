@@ -15,9 +15,10 @@ public static partial class ThatFakeLogCollector
 	public static DidNotLogResult DidNotLog(this IThat<FakeLogCollector?> subject)
 	{
 		LogRecordFilter filter = new(null);
-		RepeatedCheckOptions repeatedCheckOptions = new();
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions = new(RepeatedCheckOptions.Default);
 		return new DidNotLogResult(
-			AddLoggedConstraint(subject, filter, Quantifier.Never(), repeatedCheckOptions, []), subject, filter,
+			AddLoggedConstraint(subject, filter, new OptionsHolder<Quantifier>(Quantifier.Default.Never()),
+				repeatedCheckOptions, []), subject, filter,
 			repeatedCheckOptions);
 	}
 
@@ -28,9 +29,10 @@ public static partial class ThatFakeLogCollector
 	public static DidNotLogLevelResult DidNotLog(this IThat<FakeLogCollector?> subject, LogLevel level)
 	{
 		LogRecordFilter filter = new(level);
-		RepeatedCheckOptions repeatedCheckOptions = new();
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions = new(RepeatedCheckOptions.Default);
 		return new DidNotLogLevelResult(
-			AddLoggedConstraint(subject, filter, Quantifier.Never(), repeatedCheckOptions, []), subject, filter,
+			AddLoggedConstraint(subject, filter, new OptionsHolder<Quantifier>(Quantifier.Default.Never()),
+				repeatedCheckOptions, []), subject, filter,
 			repeatedCheckOptions);
 	}
 }

@@ -21,17 +21,17 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	/// </summary>
 	private const string OriginalFormat = "{OriginalFormat}";
 
-	private readonly List<(string Expected, StringEqualityOptions Options)> _categories = [];
+	private readonly List<(string Expected, OptionsHolder<StringEqualityOptions> Options)> _categories = [];
 	private readonly List<int> _eventIds = [];
 	private readonly List<Type> _exceptionTypes = [];
-	private readonly List<(string Expected, StringEqualityOptions Options)> _messageTemplates = [];
-	private readonly List<(string Expected, StringEqualityOptions Options)> _messages = [];
+	private readonly List<(string Expected, OptionsHolder<StringEqualityOptions> Options)> _messageTemplates = [];
+	private readonly List<(string Expected, OptionsHolder<StringEqualityOptions> Options)> _messages = [];
 	private readonly List<PropertyCondition> _properties = [];
 	private bool _orHigher;
 
-	public StringEqualityOptions AddCategory(string expected)
+	public OptionsHolder<StringEqualityOptions> AddCategory(string expected)
 	{
-		StringEqualityOptions options = new(nameof(expected));
+		OptionsHolder<StringEqualityOptions> options = new(StringEqualityOptions.Default);
 		_categories.Add((expected, options));
 		return options;
 	}
@@ -71,16 +71,16 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		return categoryName.ToString();
 	}
 
-	public StringEqualityOptions AddMessage(string expected)
+	public OptionsHolder<StringEqualityOptions> AddMessage(string expected)
 	{
-		StringEqualityOptions options = new(nameof(expected));
+		OptionsHolder<StringEqualityOptions> options = new(StringEqualityOptions.Default);
 		_messages.Add((expected, options));
 		return options;
 	}
 
-	public StringEqualityOptions AddMessageTemplate(string expected)
+	public OptionsHolder<StringEqualityOptions> AddMessageTemplate(string expected)
 	{
-		StringEqualityOptions options = new(nameof(expected));
+		OptionsHolder<StringEqualityOptions> options = new(StringEqualityOptions.Default);
 		_messageTemplates.Add((expected, options));
 		return options;
 	}
@@ -141,16 +141,17 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	/// </summary>
 	public void ValidateExpected()
 	{
-		foreach ((string expected, StringEqualityOptions options) in _categories.Concat(_messages).Concat(_messageTemplates))
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in
+		         _categories.Concat(_messages).Concat(_messageTemplates))
 		{
-			options.ValidateExpected(expected);
+			options.Value.ValidateExpected(expected, nameof(expected));
 		}
 
 		foreach (PropertyCondition property in _properties)
 		{
 			if (property.Value is { } value)
 			{
-				value.Options.ValidateExpected(value.Expected);
+				value.Options.Value.ValidateExpected(value.Expected, "expected");
 			}
 		}
 	}
@@ -168,9 +169,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
-		foreach ((string expected, StringEqualityOptions options) in _categories)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _categories)
 		{
-			if (!await options.AreConsideredEqual(record.Category, expected))
+			if (!await options.Value.AreConsideredEqual(record.Category, expected, nameof(expected)))
 			{
 				return false;
 			}
@@ -184,9 +185,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			return false;
 		}
 
-		foreach ((string expected, StringEqualityOptions options) in _messages)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _messages)
 		{
-			if (!await options.AreConsideredEqual(record.Message, expected))
+			if (!await options.Value.AreConsideredEqual(record.Message, expected, nameof(expected)))
 			{
 				return false;
 			}
@@ -206,16 +207,16 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			conditions.Add($"level {Formatter.Format(level.Value)}{(_orHigher ? " or higher" : "")}");
 		}
 
-		foreach ((string expected, StringEqualityOptions options) in _messages)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _messages)
 		{
-			conditions.Add($"message {options.GetExpectation(expected, ExpectationGrammars.None)}");
+			conditions.Add($"message {options.Value.GetExpectation(expected, ExpectationGrammars.None)}");
 		}
 
 		// Unlike the expectation of the options, which shortens a long value, a template is shown completely, as
 		// templates often only differ in their last part, e.g. an appended placeholder.
-		foreach ((string expected, StringEqualityOptions options) in _messageTemplates)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _messageTemplates)
 		{
-			conditions.Add($"message template {Formatter.Format(expected)}{options}");
+			conditions.Add($"message template {Formatter.Format(expected)}{options.Value}");
 		}
 
 		foreach (Type exceptionType in _exceptionTypes)
@@ -224,9 +225,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		}
 
 		// Like the template, a category is shown completely, as full type names often only differ in their last part.
-		foreach ((string expected, StringEqualityOptions options) in _categories)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _categories)
 		{
-			conditions.Add($"category {Formatter.Format(expected)}{options}");
+			conditions.Add($"category {Formatter.Format(expected)}{options.Value}");
 		}
 
 		foreach (int eventId in _eventIds)
@@ -239,7 +240,7 @@ internal sealed class LogRecordFilter(LogLevel? level)
 			string condition = $"property {property.Name}";
 			if (property.Value is { } value)
 			{
-				condition += $" with value {value.Options.GetExpectation(value.Expected, ExpectationGrammars.None)}";
+				condition += $" with value {value.Options.Value.GetExpectation(value.Expected, ExpectationGrammars.None)}";
 			}
 
 			conditions.Add(condition);
@@ -278,7 +279,8 @@ internal sealed class LogRecordFilter(LogLevel? level)
 		{
 			KeyValuePair<string, string?> entry = FindEntry(state, property.Name);
 			if (entry.Key is null ||
-			    (property.Value is { } value && !await value.Options.AreConsideredEqual(entry.Value, value.Expected)))
+			    (property.Value is { } value &&
+			     !await value.Options.Value.AreConsideredEqual(entry.Value, value.Expected, "expected")))
 			{
 				return false;
 			}
@@ -290,9 +292,9 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	private async ValueTask<bool> HasMatchingMessageTemplates(IReadOnlyList<KeyValuePair<string, string?>> state)
 	{
 		KeyValuePair<string, string?> entry = FindEntry(state, OriginalFormat);
-		foreach ((string expected, StringEqualityOptions options) in _messageTemplates)
+		foreach ((string expected, OptionsHolder<StringEqualityOptions> options) in _messageTemplates)
 		{
-			if (entry.Key is null || !await options.AreConsideredEqual(entry.Value, expected))
+			if (entry.Key is null || !await options.Value.AreConsideredEqual(entry.Value, expected, nameof(expected)))
 			{
 				return false;
 			}
@@ -308,17 +310,17 @@ internal sealed class LogRecordFilter(LogLevel? level)
 	{
 		public string Name { get; } = name;
 
-		public (string? Expected, StringEqualityOptions Options)? Value { get; private set; }
+		public (string? Expected, OptionsHolder<StringEqualityOptions> Options)? Value { get; private set; }
 
 		/// <exception cref="InvalidOperationException">The value is already specified.</exception>
-		public StringEqualityOptions WithValue(string? expected)
+		public OptionsHolder<StringEqualityOptions> WithValue(string? expected)
 		{
 			if (Value is not null)
 			{
 				throw new InvalidOperationException($"{nameof(WithValue)} cannot be specified more than once.");
 			}
 
-			StringEqualityOptions options = new(nameof(expected));
+			OptionsHolder<StringEqualityOptions> options = new(StringEqualityOptions.Default);
 			Value = (expected, options);
 			return options;
 		}

@@ -14,16 +14,16 @@ public sealed class DidNotLogMessageTemplateResult
 		IOptionsProvider<StringEqualityOptions>,
 		IStringMatchTypeOptions
 {
-	private readonly StringEqualityOptions _options;
+	private readonly OptionsHolder<StringEqualityOptions> _options;
 
 	internal DidNotLogMessageTemplateResult(ExpectationBuilder expectationBuilder,
-		IThat<FakeLogCollector?> returnValue, LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions,
-		StringEqualityOptions options)
+		IThat<FakeLogCollector?> returnValue, LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
+		OptionsHolder<StringEqualityOptions> options)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 		_options = options;
 	}
 
 	/// <inheritdoc cref="IOptionsProvider{TOptions}.Options" />
-	StringEqualityOptions IOptionsProvider<StringEqualityOptions>.Options => _options;
+	OptionsHolder<StringEqualityOptions> IOptionsProvider<StringEqualityOptions>.Options => _options;
 }
