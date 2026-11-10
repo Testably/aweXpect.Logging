@@ -14,11 +14,11 @@ namespace aweXpect.Results;
 public class LoggedInOrderResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, LoggedInOrderResult>
 {
-	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+	private readonly OptionsHolder<RepeatedCheckOptions> _repeatedCheckOptions;
 	private readonly IThat<FakeLogCollector?> _returnValue;
 
 	internal LoggedInOrderResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		RepeatedCheckOptions repeatedCheckOptions)
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
 		_returnValue = returnValue;

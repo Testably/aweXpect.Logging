@@ -15,16 +15,16 @@ public sealed class LoggedCategoryResult
 		IOptionsProvider<StringEqualityOptions>,
 		IStringMatchTypeOptions
 {
-	private readonly StringEqualityOptions _options;
+	private readonly OptionsHolder<StringEqualityOptions> _options;
 
 	internal LoggedCategoryResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
-		List<LogRecordFilter> steps, StringEqualityOptions options)
+		LogRecordFilter filter, OptionsHolder<Quantifier> quantifier, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
+		List<LogRecordFilter> steps, OptionsHolder<StringEqualityOptions> options)
 		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{
 		_options = options;
 	}
 
 	/// <inheritdoc cref="IOptionsProvider{TOptions}.Options" />
-	StringEqualityOptions IOptionsProvider<StringEqualityOptions>.Options => _options;
+	OptionsHolder<StringEqualityOptions> IOptionsProvider<StringEqualityOptions>.Options => _options;
 }

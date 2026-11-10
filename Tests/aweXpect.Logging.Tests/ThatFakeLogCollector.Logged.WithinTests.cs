@@ -217,17 +217,21 @@ public sealed partial class ThatFakeLogCollector
 			}
 
 			[Test]
-			public async Task WhenSpecifiedTwice_ShouldThrowInvalidOperationException()
+			public async Task WhenSpecifiedTwice_ShouldUseTheLaterTimeout()
 			{
 				FakeLogCollector subject = new();
 
 				async Task Act()
 					=> await That(subject).Logged(LogLevel.Warning)
-						.Within(TimeSpan.FromSeconds(1))
-						.Within(TimeSpan.FromSeconds(2));
+						.Within(TimeSpan.FromSeconds(30))
+						.Within(TimeSpan.FromMilliseconds(100));
 
-				await That(Act).Throws<InvalidOperationException>()
-					.WithMessage("Within cannot be specified more than once.");
+				await That(Act).Throws<FailException>()
+					.WithMessage("""
+					             Expected that subject
+					             logged a record with level Warning at least once within 0:00.100,
+					             but it did not log any record
+					             """).Because("a later timeout replaces the earlier one");
 			}
 
 			[Test]

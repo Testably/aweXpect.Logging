@@ -13,7 +13,7 @@ namespace aweXpect.Results;
 public sealed class DidNotLogWithinResult : DidNotLogResult
 {
 	internal DidNotLogWithinResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 	}

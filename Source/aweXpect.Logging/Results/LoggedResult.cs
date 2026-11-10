@@ -19,14 +19,14 @@ namespace aweXpect.Results;
 /// </remarks>
 public class LoggedResult : LogRecordFilterResult<LoggedResult>
 {
-	private readonly Quantifier _quantifier;
+	private readonly OptionsHolder<Quantifier> _quantifier;
 	private readonly List<LogRecordFilter> _steps;
 
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal LoggedResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		LogRecordFilter filter, OptionsHolder<Quantifier> quantifier, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
 		List<LogRecordFilter> steps)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
@@ -67,10 +67,10 @@ public class LoggedResult : LogRecordFilterResult<LoggedResult>
 	/// <summary>
 	///     Verifies that it logged matching records between <paramref name="minimum" />…
 	/// </summary>
-	public BetweenResult<LoggedCountResult> Between(int minimum)
+	public BetweenResult<LoggedCountResult, Times> Between(int minimum)
 		=> new(maximum =>
 		{
-			_quantifier.Between(minimum, maximum);
+			_quantifier.Between(minimum, maximum.Value);
 			return Quantified();
 		});
 

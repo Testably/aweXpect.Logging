@@ -197,7 +197,7 @@ namespace aweXpect.Results
         public aweXpect.Results.LoggedCountResult AtLeast(aweXpect.Core.Times minimum) { }
         public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> AtMost() { }
         public aweXpect.Results.LoggedCountResult AtMost(aweXpect.Core.Times maximum) { }
-        public aweXpect.Results.BetweenResult<aweXpect.Results.LoggedCountResult> Between(int minimum) { }
+        public aweXpect.Results.BetweenResult<aweXpect.Results.LoggedCountResult, aweXpect.Core.Times> Between(int minimum) { }
         public aweXpect.Results.LoggedCountResult Exactly(aweXpect.Core.Times expected) { }
         public aweXpect.Results.CountTimesResult<aweXpect.Results.LoggedCountResult> LessThan() { }
         public aweXpect.Results.LoggedCountResult LessThan(aweXpect.Core.Times maximum) { }

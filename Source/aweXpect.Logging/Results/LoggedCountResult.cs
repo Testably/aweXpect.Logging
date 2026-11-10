@@ -15,14 +15,14 @@ namespace aweXpect.Results;
 public class LoggedCountResult
 	: AndOrResult<FakeLogCollector?, IThat<FakeLogCollector?>, LoggedCountResult>
 {
-	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+	private readonly OptionsHolder<RepeatedCheckOptions> _repeatedCheckOptions;
 	private readonly IThat<FakeLogCollector?> _returnValue;
 
 	/// <remarks>
 	///     Internal, so that the result can take the options of further filters without a breaking change.
 	/// </remarks>
 	internal LoggedCountResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		RepeatedCheckOptions repeatedCheckOptions)
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue)
 	{
 		_returnValue = returnValue;

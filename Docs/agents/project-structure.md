@@ -6,7 +6,7 @@
 |------|---------|
 | `Source/aweXpect.Logging/` | The only shipped package. Root namespace `aweXpect`. |
 | `Tests/aweXpect.Logging.Tests/` | TUnit unit tests on net8.0, net10.0 and net48. |
-| `Tests/aweXpect.Logging.Api.Tests/` | TUnit public API tests (net10.0) with a `*.awexpect-snapshot.txt` of the public surface per target framework. |
+| `Tests/aweXpect.Logging.Api.Tests/` | TUnit public API tests (net10.0) with a `*.awexpect-snapshot.cs` of the public surface per target framework. |
 | `Tests/Aot/aweXpect.Logging.Aot/` | Console app with smoke checks, run under the JIT and published with Native AOT (net10.0). Not a test project. |
 | `Benchmarks/aweXpect.Logging.Benchmarks/` | BenchmarkDotNet project (net8.0). |
 | `Pipeline/` | Fallout build pipeline (`Build.*.cs`, one file per area). Has its own `Directory.Build.*` files that do not import the root ones. |

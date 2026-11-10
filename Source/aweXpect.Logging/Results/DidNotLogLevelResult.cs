@@ -12,7 +12,7 @@ namespace aweXpect.Results;
 public sealed class DidNotLogLevelResult : DidNotLogResult
 {
 	internal DidNotLogLevelResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, RepeatedCheckOptions repeatedCheckOptions)
+		LogRecordFilter filter, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue, filter, repeatedCheckOptions)
 	{
 	}

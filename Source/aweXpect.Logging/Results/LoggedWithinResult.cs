@@ -14,7 +14,7 @@ namespace aweXpect.Results;
 public sealed class LoggedWithinResult : LoggedResult
 {
 	internal LoggedWithinResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		LogRecordFilter filter, Quantifier quantifier, RepeatedCheckOptions repeatedCheckOptions,
+		LogRecordFilter filter, OptionsHolder<Quantifier> quantifier, OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions,
 		List<LogRecordFilter> steps)
 		: base(expectationBuilder, returnValue, filter, quantifier, repeatedCheckOptions, steps)
 	{

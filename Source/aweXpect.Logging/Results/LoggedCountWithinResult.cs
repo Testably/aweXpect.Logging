@@ -12,10 +12,10 @@ namespace aweXpect.Results;
 /// </summary>
 public sealed class LoggedCountWithinResult : LoggedCountResult
 {
-	private readonly RepeatedCheckOptions _repeatedCheckOptions;
+	private readonly OptionsHolder<RepeatedCheckOptions> _repeatedCheckOptions;
 
 	internal LoggedCountWithinResult(ExpectationBuilder expectationBuilder, IThat<FakeLogCollector?> returnValue,
-		RepeatedCheckOptions repeatedCheckOptions)
+		OptionsHolder<RepeatedCheckOptions> repeatedCheckOptions)
 		: base(expectationBuilder, returnValue, repeatedCheckOptions)
 	{
 		_repeatedCheckOptions = repeatedCheckOptions;
