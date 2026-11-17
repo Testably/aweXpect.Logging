@@ -3,9 +3,9 @@
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageVersion Include="aweXpect" Version="4.0.0"/>
-		<PackageVersion Include="aweXpect.Core" Version="4.0.0"/>
-		<PackageVersion Include="aweXpect.Snapshots.PublicApi" Version="4.0.0"/>
+		<PackageVersion Include="aweXpect" Version="4.2.0"/>
+		<PackageVersion Include="aweXpect.Core" Version="4.2.0"/>
+		<PackageVersion Include="aweXpect.Snapshots.PublicApi" Version="4.2.0"/>
 		<PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.11.0"/>
 	</ItemGroup>
 	<ItemGroup>
